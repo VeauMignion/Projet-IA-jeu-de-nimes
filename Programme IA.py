@@ -37,14 +37,14 @@ def jeu ():
     coupjouesIA2 = []                    #à quels nombres de batons l'IA2 à fait ses coups
     numcoupjouesIA1 = []                 #combien de bâtons l'IA1 à retiré à chaqun de ses coups
     numcoupjouesIA2 = []                 #combien de bâtons l'IA2 à retiré à chaqun de ses coups
-    if random >= 0.5:
+    if random.random() >= 0.5:
         while lose == 0:
             if nbB <= 0:
                 if lose == 0:
                     lose = 1
                 return (1,0)
             else:
-                randomtire = random*90
+                randomtire = random.randint(0,90)
                 if randomtire >= IA1tt[nbB]:
                     numcoupjouesIA1.append(nbB)
                     coupjouesIA1.append(3)
@@ -62,7 +62,7 @@ def jeu ():
                     lose = 1
                 return (0,1)
             else:
-                randomtire = random*90
+                randomtire = random.randint(0,90)
                 if randomtire >= IA2tt[nbB]:
                     numcoupjouesIA2.append(nbB)
                     coupjouesIA2.append(3)
@@ -82,7 +82,7 @@ def jeu ():
                     lose = 1
                 return (1,0)
             else:
-                randomtire = random*90
+                randomtire = random.randint(0,90)
                 if randomtire >= IA1tt[nbB]:
                     numcoupjouesIA1.append(nbB)
                     coupjouesIA1.append(3)
@@ -100,7 +100,7 @@ def jeu ():
                     lose = 1
                 return (0,1)
             else:
-                randomtire = random*90
+                randomtire = random.randint(0,90)
                 if randomtire >= IA2tt[nbB]:
                     numcoupjouesIA2.append(nbB)
                     coupjouesIA2.append(3)
