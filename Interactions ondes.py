@@ -1,9 +1,6 @@
 #créé par HUMBERT, le 21/10/2023
 #importations 
-from matplotlib import pyplot as plt
-from math import exp, expm1, sqrt
-from matplotlib.widgets import Slider
-from matplotlib.gridspec import GridSpec
+
 ##le but de ce programme est de modéliser les zones où les interactions entre les ondes sont destructrices ou constructives, en fonction de:
 ##le mode ondes sur l'eau:                                le mode lumière:
 ##a la distance entre les sources des ondes (cm)          (micro m) 
@@ -93,4 +90,4 @@ if ModeA == 0: #calcul pour l'eau
             k=k+1
         plt.legend()
         #Affichage
-        plt.show()
+        plt.show()  
