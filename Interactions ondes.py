@@ -1,6 +1,5 @@
 #créé par HUMBERT, le 21/10/2023
 #importations 
-import numpy  as np
 from matplotlib import pyplot as plt
 from math import exp, expm1, sqrt
 from matplotlib.widgets import Slider
@@ -14,7 +13,11 @@ from matplotlib.gridspec import GridSpec
 ##D la distance par rapport à la source des ondes  (cm)    (m)
 
 #fonction de la courbe
-#
+#def courbe (d):
+#    traceh= a*0.5+(sqrt((d*d*a*a-d*d*d*d+4*d*d*D*D)/(a*a-d*d))*0.5)
+#    traceb= a*0.5-(sqrt((d*d*a*a-d*d*d*d+4*d*d*D*D)/(a*a-d*d))*0.5)
+
+ 
 
 #Conditions initiales
 ModeA = 0
@@ -24,40 +27,69 @@ if ModeA == 0: #calcul pour l'eau
     lamb=2
     dT=0
     c=0.5
+    ai=a
+    lambi=lamb
+    dTi=dT
+    ci=c
+    cons=0.5
+    k=0
+    pas=0.01
+    i=0
+    D=1
+    x=0
+    while 0==0:
+        # Création d'un curseur, noté a, avec la position et les dimensions de ce curseur (rectangle_a)
+        rectangle_a = plt.axes([0.25, 0.1, 0.5, 0.02])
+        a = Slider(rectangle_a, 'distance entre les sources (cm)', 1,20, valinit=ai)
+        # Création d'un curseur, noté lamb, avec la position et les dimensions de ce curseur (rectangle_b)
+        rectangle_b = plt.axes([0.25, 0.155, 0.5, 0.02])        
+        lamb = Slider(rectangle_b, 'longueur d onde(cm)',0.5, 10, valinit=lambi)        
+        # Création d'un curseur, noté dT, avec la position et les dimensions de ce curseur (rectangle_c)
+        rectangle_c = plt.axes([0.25, 0.210, 0.5, 0.02])
+        dT = Slider(rectangle_c, 'déphasage temporel dT (ms)', 0, 200, valinit=dTi)
+        # Création d'un curseur, noté c, avec la position et les dimensions de ce curseur (rectangle_d) 
+        rectangle_d = plt.axes([0.25, 0.265, 0.5, 0.02])
+        dT = Slider(rectangle_d, 'célérité de l onde (m.s^-1)', 0.1, 1, valinit=ci)
+        
+        #calcul des limites de graphique
+        ymin=-10
+        ymax=a+10
+        xmin=-20
+        xmax=20
 
+        #création de D
+        Dx =[]
+        D=xmin
+        while D < xmax:
+            Dx.append(D)
+            D=D+pas
 
-#TracÃ© des courbes
-G = GridSpec(10, 8)
-fig, ax = plt.subplots(figsize=(12,8))
-axes_1 = plt.subplot(G[:-3, :])
-plt.axis([0,20,-10,10])
-plt.xlabel('$t$ (s)')
-plt.ylabel('Amplitude ')
-plt.title('Somme de deux ondes sinusoÃ¯dales synchrones ')
-plt.grid()
-p1, = plt.plot(time, y1, '-g',label=r'$y_1 = A \times \cos( \frac{2\pi}{T}\times t)$')
-p2, = plt.plot(time, y2, '-b',label=r'$y_2 = A \times \cos( \frac{2\pi}{T}\times t + \Phi)$')
-p3, =  plt.plot(time, y3, '-r',label=r'$y_3= y_1 + y_2$')
-plt.legend()
-################################################################################
-#Sliders
-################################################################################
-# CrÃ©ation d'un curseur, notÃ© T, avec la position et les dimensions de ce curseur (rectangle_a)
-rectangle_a = plt.axes([0.25, 0.1, 0.5, 1])
-T = Slider(rectangle_a, 'PÃ©riode $T$ (s)', 1,10, valinit=initial_T)
-# CrÃ©ation d'un curseur, notÃ© A, avec la position et les dimensions de ce curseur (rectangle-b)
-rectangle_b = plt.axes([0.25, 0.155, 0.5, 0.02])
-A = Slider(rectangle_b, 'Amplitude $A$ (m)', 0, 5, valinit=initial_A)
-# CrÃ©ation d'un curseur, notÃ© PHI, avec la position et les dimensions de ce curseur (rectangle_c)
-rectangle_c = plt.axes([0.25, 0.210, 0.5, 0.02])
-PHI = Slider(rectangle_c, 'Phase $\phi$ (rad)', 0, 7, valinit=initial_PHI)
-# appel de la fonction update lorsque le curseur est actionnÃ©
-A.on_changed(update)
-T.on_changed(update)
-PHI.on_changed(update)
-#Affichage
-print(np.pi)
-plt.show()
-
-
-
+        #Tracé des courbes
+        G = GridSpec(10, 8)
+        fig, ax = plt.subplots(figsize=(12,8))
+        plt.axis([xmin,xmax,ymin,ymax])
+        plt.xlabel('D en (cm)')
+        plt.ylabel('y en (cm) ')
+        if cons == 0:
+            plt.title('zones d interactions constructives ')
+        else:
+            plt.title('zones d interactions destructives ') 
+        plt.grid()
+        while k+cons < a/lamb:
+            d=k+cons
+            ytraceh=[]
+            ytraceb=[]
+            i=0
+            while i <= length(Dx):
+                x=Dx[i]
+                traceh= a*0.5+(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5)
+                traceb= a*0.5-(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5)
+                ytraceb.append(traceb)
+                ytraceh.append(traceh)
+                i=i+1
+            plt.plot(Dx,ytraceh,'r')
+            plt.plot(Dx,ytraceb,'b')
+            k=k+1
+        plt.legend()
+        #Affichage
+        plt.show()
