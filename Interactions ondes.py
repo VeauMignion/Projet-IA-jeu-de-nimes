@@ -40,7 +40,7 @@ if ModeA == 0: #calcul pour l'eau
     while 0==0:
         # Création d'un curseur, noté a, avec la position et les dimensions de ce curseur (rectangle_a)
         rectangle_a = plt.axes([0.25, 0.1, 0.5, 0.02])
-        a = Slider(rectangle_a, 'distance entre les sources (cm)', 1,20, valinit=ai)
+        Sla = Slider(rectangle_a, 'distance entre les sources (cm)', 1,20, valinit=ai)
         # Création d'un curseur, noté lamb, avec la position et les dimensions de ce curseur (rectangle_b)
         rectangle_b = plt.axes([0.25, 0.155, 0.5, 0.02])        
         lamb = Slider(rectangle_b, 'longueur d onde(cm)',0.5, 10, valinit=lambi)        
@@ -52,6 +52,7 @@ if ModeA == 0: #calcul pour l'eau
         dT = Slider(rectangle_d, 'célérité de l onde (m.s^-1)', 0.1, 1, valinit=ci)
         
         #calcul des limites de graphique
+        a = Sla.val
         ymin=-10
         ymax=a+10
         xmin=-20
@@ -75,12 +76,12 @@ if ModeA == 0: #calcul pour l'eau
         else:
             plt.title('zones d interactions destructives ') 
         plt.grid()
-        while k+cons < a/lamb:
+        while k+cons < a/lamb.val:
             d=k+cons
             ytraceh=[]
             ytraceb=[]
             i=0
-            while i <= length(Dx):
+            while i < len(Dx):
                 x=Dx[i]
                 traceh= a*0.5+(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5)
                 traceb= a*0.5-(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5)
