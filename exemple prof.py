@@ -42,7 +42,7 @@ plt.legend()
 #Sliders
 ################################################################################
 # CrÃ©ation d'un curseur, notÃ© T, avec la position et les dimensions de ce curseur (rectangle_a)
-rectangle_a = plt.axes([0.25, 0.1, 0.5, 1])
+rectangle_a = plt.axes([0.25, 0.1, 0.5, 0.02])
 T = Slider(rectangle_a, 'PÃ©riode $T$ (s)', 1,10, valinit=initial_T)
 # CrÃ©ation d'un curseur, notÃ© A, avec la position et les dimensions de ce curseur (rectangle-b)
 rectangle_b = plt.axes([0.25, 0.155, 0.5, 0.02])

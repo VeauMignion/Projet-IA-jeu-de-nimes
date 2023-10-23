@@ -18,6 +18,9 @@ from matplotlib.gridspec import GridSpec
 #    traceh= a*0.5+(sqrt((d*d*a*a-d*d*d*d+4*d*d*D*D)/(a*a-d*d))*0.5)
 #    traceb= a*0.5-(sqrt((d*d*a*a-d*d*d*d+4*d*d*D*D)/(a*a-d*d))*0.5)
 
+#definition des 2 figures
+
+
 #fonction de la courbe
 def atraceh(d,a,x):
     return(a*0.5+(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5))
@@ -27,8 +30,8 @@ def atraceb(d,a,x):
 
 #fonction d'actualisation
 def update(val):
+    ax1.cla()
     a=aS.val
-    plt.cla()
     k=0
     while k+cons < a/lamb.val:
         d=k+cons
@@ -37,13 +40,13 @@ def update(val):
         i=0
         while i < len(Dx):
             x=Dx[i]
-            traceh=(atraceh(d,a,x))
-            traceb=(atraceb(d,a,x))
+            traceh=(a*0.5+(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5))
+            traceb=(a*0.5-(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5))
             ytraceb.append(traceb)
             ytraceh.append(traceh)
             i=i+1
-        plt.plot(Dx,ytraceh,'r')
-        plt.plot(Dx,ytraceb,'b')
+        ax1.plot(Dx,ytraceh,'r')
+        ax1.plot(Dx,ytraceb,'b')
         k=k+1
 
 
@@ -70,18 +73,17 @@ if ModeA == 0: #calcul pour l'eau
     while D < xmax:
         Dx.append(D)
         D=D+pas
-
     #Tracé des courbes
-    fig, ax = plt.subplots(figsize=(12,8))
-    fig.subplots_adjust(bottom=0.3)
-    plt.axis([xmin,xmax,ymin,ymax])
+    #fig, ax = plt.subplots(figsize=(12,8))
+    fig, (ax1) = plt.subplots(1, 1, figsize=(10, 5))
+    ax1.axis([xmin,xmax,ymin,ymax])
     plt.xlabel('D en (cm)')
     plt.ylabel('y en (cm) ')
     if cons == 0:
         plt.title('zones d interactions constructives ')
     else:
         plt.title('zones d interactions destructives ')
-    plt.grid()
+    ax1.grid()
     plt.legend()
     # Création d'un curseur, noté a, avec la position et les dimensions de ce curseur (rectangle_a)
     rectangle_a = plt.axes([0.25, 0.1, 0.5, 0.02])
@@ -95,9 +97,11 @@ if ModeA == 0: #calcul pour l'eau
     # Création d'un curseur, noté c, avec la position et les dimensions de ce curseur (rectangle_d)
     rectangle_d = plt.axes([0.25, 0.19, 0.5, 0.02])
     c = Slider(rectangle_d, 'célérité de l onde (m.s^-1)', 0.1, 1, valinit=0.5)
-    plt.show()
     aS.on_changed(update)
     lamb.on_changed(update)
     dT.on_changed(update)
     c.on_changed(update)
+    update(10)
     #Affichage
+    plt.show()
+
