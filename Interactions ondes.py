@@ -34,7 +34,7 @@ def update(val):
     a=aS.val
     k=0
     while k+cons < a/lamb.val:
-        d=k+cons
+        d=(k+cons)*lamb.val
         ytraceh=[]
         ytraceb=[]
         i=0
@@ -48,6 +48,10 @@ def update(val):
         ax1.plot(Dx,ytraceh,'r')
         ax1.plot(Dx,ytraceb,'b')
         k=k+1
+    ax1.plot(0,0, marker="o", color="red")
+    ax1.plot(0,a, marker="o", color="red")
+    ax1.axis([xmin, xmax, ymin_fixed, ymax_fixed])
+    ax1.grid()
 
 
 
@@ -76,7 +80,7 @@ if ModeA == 0: #calcul pour l'eau
     #Tracé des courbes
     #fig, ax = plt.subplots(figsize=(12,8))
     fig, (ax1) = plt.subplots(1, 1, figsize=(10, 5))
-    ax1.axis[xmin, xmax, ymin_fixed, ymax_fixed]
+    ax1.axis([xmin, xmax, ymin_fixed, ymax_fixed])
     plt.xlabel('D en (cm)')
     plt.ylabel('y en (cm) ')
     if cons == 0:
@@ -103,5 +107,6 @@ if ModeA == 0: #calcul pour l'eau
     c.on_changed(update)
     update(10)
     #Affichage
+    ax1.grid()
     plt.show()
 
