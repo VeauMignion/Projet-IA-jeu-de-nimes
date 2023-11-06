@@ -1,5 +1,6 @@
 # Créé par HUMBERT, le 23/10/2023 en Python 3.7
 #créé par HUMBERT, le 21/10/2023
+#aidé de Bouboy
 #importations
 from matplotlib import pyplot as plt
 from math import exp, expm1, sqrt
