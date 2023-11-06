@@ -62,8 +62,8 @@ if ModeA == 0: #calcul pour l'eau
     D=1
     x=0
     #calcul des limites de graphique
-    ymin=-10
-    ymax=20
+    ymin_fixed=-10
+    ymax_fixed=20
     xmin=-20
     xmax=20
 
@@ -76,7 +76,7 @@ if ModeA == 0: #calcul pour l'eau
     #Tracé des courbes
     #fig, ax = plt.subplots(figsize=(12,8))
     fig, (ax1) = plt.subplots(1, 1, figsize=(10, 5))
-    ax1.axis([xmin,xmax,ymin,ymax])
+    ax1.axis[xmin, xmax, ymin_fixed, ymax_fixed]
     plt.xlabel('D en (cm)')
     plt.ylabel('y en (cm) ')
     if cons == 0:
@@ -84,7 +84,7 @@ if ModeA == 0: #calcul pour l'eau
     else:
         plt.title('zones d interactions destructives ')
     ax1.grid()
-    plt.legend()
+    ax1.legend()
     # Création d'un curseur, noté a, avec la position et les dimensions de ce curseur (rectangle_a)
     rectangle_a = plt.axes([0.25, 0.1, 0.5, 0.02])
     aS = Slider(rectangle_a, 'distance entre les sources (cm)', 1,20, valinit=10)
