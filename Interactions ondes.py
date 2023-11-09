@@ -47,7 +47,7 @@ def update(val):
             ytraceb.append(traceb)
             ytraceh.append(traceh)
             i=i+1
-        ax1.plot(Dx,ytraceh,'r')
+        ax1.plot(Dx,ytraceh,'b')
         ax1.plot(Dx,ytraceb,'b')
         k=k+1
     ax1.plot(0,0, marker="o", color="red")
