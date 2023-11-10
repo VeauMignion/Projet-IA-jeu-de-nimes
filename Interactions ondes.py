@@ -35,8 +35,11 @@ def update(val):
     ax1.cla()
     a=aS.val
     k=0
-    while k+cons < a/lamb.val:
-        d=(k+cons)*lamb.val
+    cel=ce.val
+    Dd=cel*100*dT.val/1000
+    Ddp=Dd%lamb.val
+    while k+cons < a/lamb.val-Ddp:
+        d=(k+cons)*lamb.val+Ddp
         ytraceh=[]
         ytraceb=[]
         i=0
@@ -63,7 +66,7 @@ ModeA = 0
 if ModeA == 0: #calcul pour l'eau
     cons=0.5
     k=0
-    pas=0.01
+    pas=0.1
     i=0
     D=1
     x=0
@@ -90,7 +93,6 @@ if ModeA == 0: #calcul pour l'eau
     else:
         plt.title('zones d interactions destructives ')
     ax1.grid()
-    ax1.legend()
     # Création d'un curseur, noté a, avec la position et les dimensions de ce curseur (rectangle_a)
     rectangle_a = plt.axes([0.25, 0.1, 0.5, 0.02])
     aS = Slider(rectangle_a, 'distance entre les sources (cm)', 1,20, valinit=10)
@@ -102,11 +104,11 @@ if ModeA == 0: #calcul pour l'eau
     dT = Slider(rectangle_c, 'déphasage temporel dT (ms)', 0, 200, valinit=0)
     # Création d'un curseur, noté c, avec la position et les dimensions de ce curseur (rectangle_d)
     rectangle_d = plt.axes([0.25, 0.19, 0.5, 0.02])
-    c = Slider(rectangle_d, 'célérité de l onde (m.s^-1)', 0.1, 1, valinit=0.5)
+    ce = Slider(rectangle_d, 'célérité de l onde (m.s^-1)', 0.1, 1, valinit=0.5)
     aS.on_changed(update)
     lamb.on_changed(update)
     dT.on_changed(update)
-    c.on_changed(update)
+    ce.on_changed(update)
     update(10)
     #Affichage
     ax1.grid()
