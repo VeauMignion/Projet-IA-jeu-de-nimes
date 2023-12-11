@@ -20,8 +20,6 @@ from matplotlib.gridspec import GridSpec
 #    traceh= a*0.5+(sqrt((d*d*a*a-d*d*d*d+4*d*d*D*D)/(a*a-d*d))*0.5)
 #    traceb= a*0.5-(sqrt((d*d*a*a-d*d*d*d+4*d*d*D*D)/(a*a-d*d))*0.5)
 
-#definition des 2 figures
-
 
 #fonction de la courbe
 def atraceh(d,a,x):
@@ -30,7 +28,7 @@ def atraceh(d,a,x):
 def atraceb(d,a,x):
     return(a*0.5-(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5))
 
-#fonction d'actualisation
+#fonction d'actualisation, cette fonction à pour objectif de remmetre à jour le graphique dès que la valeur d'un curseur change
 def update(val):
     ax1.cla()
     a=aS.val
@@ -38,12 +36,12 @@ def update(val):
     cel=ce.val
     Dd=cel*100*dT.val/1000
     Ddp=Dd%lamb.val
-    while k+cons < a/lamb.val-Ddp:
-        d=(k+cons)*lamb.val+Ddp
+    while k+cons < a/lamb.val-Ddp:#trace toutes les fonctions possibles 
+        d=(k+cons)*lamb.val+Ddp #donne la nouvelle vlaeur de d
         ytraceh=[]
         ytraceb=[]
         i=0
-        while i < len(Dx):
+        while i < len(Dx): #calcul et tracé de la courbe
             x=Dx[i]
             traceh=(a*0.5+(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5))
             traceb=(a*0.5-(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5))
@@ -53,9 +51,9 @@ def update(val):
         ax1.plot(Dx,ytraceh,'b')
         ax1.plot(Dx,ytraceb,'b')
         k=k+1
-    ax1.plot(0,0, marker="o", color="red")
+    ax1.plot(0,0, marker="o", color="red") #place les points sources d'ondes sur le graphique
     ax1.plot(0,a, marker="o", color="red")
-    ax1.axis([xmin, xmax, ymin_fixed, ymax_fixed])
+    ax1.axis([xmin, xmax, ymin_fixed, ymax_fixed]) #trace le grapfique et la grille
     ax1.grid()
 
 
@@ -64,8 +62,8 @@ def update(val):
 ModeA = 0
 
 if ModeA == 0: #calcul pour l'eau
-    cons=0.5
-    k=0
+    cons=0.5 #cons dit si on recherche les zones d'interactions destructives(rentrer la valeur 0,5) ou constructives(0) 
+    k=0      #
     pas=0.1
     i=0
     D=1
@@ -76,14 +74,13 @@ if ModeA == 0: #calcul pour l'eau
     xmin=-20
     xmax=20
 
-    #création de D
+    #création de D (la liste Dx remplace x)
     Dx =[]
     D=xmin
     while D < xmax:
         Dx.append(D)
         D=D+pas
-    #Tracé des courbes
-    #fig, ax = plt.subplots(figsize=(12,8))
+    ##créations des titres, légendes et sliders
     fig, (ax1) = plt.subplots(1, 1, figsize=(10, 5))
     ax1.axis([xmin, xmax, ymin_fixed, ymax_fixed])
     plt.xlabel('D en (cm)')
@@ -93,6 +90,8 @@ if ModeA == 0: #calcul pour l'eau
     else:
         plt.title('zones d interactions destructives ')
     ax1.grid()
+    ##les sliders permettent de modifier les valeurs de la distance entre les sources, la longueur d onde
+    ##le déphasage temporel et célérité de l onde sans avoir à relancer le programme
     # Création d'un curseur, noté a, avec la position et les dimensions de ce curseur (rectangle_a)
     rectangle_a = plt.axes([0.25, 0.1, 0.5, 0.02])
     aS = Slider(rectangle_a, 'distance entre les sources (cm)', 1,20, valinit=10)
@@ -114,3 +113,6 @@ if ModeA == 0: #calcul pour l'eau
     ax1.grid()
     plt.show()
 
+#éléments de codes inutiles
+#Tracé des courbes
+#fig, ax = plt.subplots(figsize=(12,8))
