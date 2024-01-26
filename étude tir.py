@@ -4,8 +4,8 @@ from matplotlib import pyplot as plt
 from math import exp, expm1, sqrt
 
 #Définition des valeurs
-vikmh = 30        #vitesse initiale(km/h)
-al = 10           #angle de tir(degrés)
+vikmh = 100        #vitesse initiale(km/h)
+al = 30           #angle de tir(degrés)
 hi = 0.1            #hauteur initiale de tir(m)
 m = 0.0027             #masse de la boule tirée(kg)
 r = 0.02            #rayon de la boule(m)
@@ -54,7 +54,8 @@ posyt = []        #position y de l'objet au cours du temps
 Emt = []          #énergie mécanique au cours de temps
 Ect = []          #énergie cinétique au cours de temps
 Ept = []          #énergie potentielle au cours de temps
-tracking_Voy = []
+tracking_Voy = [] 
+tracking_ay = []
 
 #Définition des fonctions
 
@@ -67,6 +68,8 @@ temps.append(t)
 Ect.append(Ec)
 Ept.append(Ep)
 Emt.append(Em)
+tracking_ay.append(0)
+tracking_Voy.append(0)
 #   premier calcul
 posx = posx+(Vox*dt)
 posy = posy+(Voy*dt)
@@ -74,6 +77,7 @@ posxt.append(posx)
 posyt.append(posy)
 t = t+dt
 temps.append(t)
+tracking_Voy.append(Voy)
 Ec = 0.5*m*((Vox**2)+(Voy**2))
 Ep = posy*m*g
 Em = Ec+Ep
@@ -84,14 +88,17 @@ if Vox < vent :
     Vox = Vox+(fv*((Vox-vent)**2)*(m**-1)*dt)
 if Vox > vent :
     Vox = Vox-(fv*((Vox-vent)**2)*(m**-1)*dt)
+Voyold=Voy
 Voy = Voy-(fv*((Voy)**2)*(m**-1)*dt)
 Voy = Voy-(P*(m**-1)*dt)
+tracking_ay.append((Voy-Voyold)/dt)
 #calcule le trajet jusqu'a ce que le boule touche le sol
 while posy > 0 :
     posx = posx+(Vox*dt)
     posy = posy+(Voy*dt)
     posxt.append(posx)
     posyt.append(posy)
+    tracking_Voy.append(Voy)
     t = t+dt
     temps.append(t)
     Ec = 0.5*m*((Vox**2)+(Voy**2))
@@ -100,6 +107,7 @@ while posy > 0 :
     Ect.append(Ec)
     Ept.append(Ep)
     Emt.append(Em)
+    Voyold=Voy
     if Vox < vent :
         Vox = Vox+(fv*((Vox-vent)**2)*(m**-1)*dt)
     if Vox > vent :
@@ -113,6 +121,7 @@ while posy > 0 :
             hA = posy
             dA = posx
             tA = t
+    tracking_ay.append((Voy-Voyold)/dt)
 dB = posx
 tB = t
 
@@ -148,12 +157,14 @@ else:
 ymax2 = 1.2*EMmax
 xmax2 = xmax1
 
-
+ymim3=1.2*tracking_ay[2]
+ymax3=1.2*tracking_Voy[2]
+xmax3=1.2*t
 
 #calcul global
 
 #créer les 2 figures
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 10))
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(8, 10))
 
 
 #Tracer le graphique courbe des tirs(1)
@@ -178,6 +189,16 @@ ax2.plot(posxt,Emt,'b')
 ax2.legend(['énergie cinétique','energie potentielle','énergie mécanique'])
 ax2.grid()
 
+#tracer le graphique des vitesses et accélérations(3)
+ax3.set_title('représentation des vitesses et accélérations en y')
+ax3.set_xlabel('temps(s)')
+ax3.set_ylabel('vitesse(m*s-1),acc(m*s-2)')
+ax3.set_xlim(0,xmax1)
+ax3.set_ylim(ymim3,ymax3)
+ax3.plot(tracking_ay,posxt,'r')
+ax3.plot(tracking_Voy,posxt,'g')
+ax3.legend(['accélérations','vitesses'])
+ax3.grid()
 
 
 #afficher les deux figures ensemble
