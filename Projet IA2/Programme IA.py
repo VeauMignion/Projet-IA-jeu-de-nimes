@@ -43,8 +43,8 @@ def enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3):
         np.save(e, np.array(IA2_t2))
         np.save(e, np.array(IA2_t3))
 
-IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3=resetIA()
-enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3)
+#IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3=resetIA()
+#enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3)
 
 #Rechargement des données
 with open('stokage.txt', 'rb') as e:     #on charge les listes des IA
@@ -54,6 +54,15 @@ with open('stokage.txt', 'rb') as e:     #on charge les listes des IA
     IA2_t1 = np.load(e)
     IA2_t2 = np.load(e)
     IA2_t3 = np.load(e)
+
+def chargerlistes():
+    with open('stokage.txt', 'rb') as e:     #on charge les listes des IA
+        IA1_t1 = np.load(e)
+        IA1_t2 = np.load(e)
+        IA1_t3 = np.load(e)
+        IA2_t1 = np.load(e)
+        IA2_t2 = np.load(e)
+        IA2_t3 = np.load(e)
 
 def entrainement():     #fonction que l'on va faire en boucle pour entrainer les IA
     nbB=21
@@ -81,7 +90,6 @@ def entrainement():     #fonction que l'on va faire en boucle pour entrainer les
     rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2)
     apprentissage(LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2,win)
 
-
 def rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2):
     print(win)
     print()
@@ -95,6 +103,35 @@ def rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2):
     print()
 
 
+
+def jeucontreIA(b):
+    nbB=21
+    if random.randint(0,1)>=0.5:
+        playing=1
+        print("Joueur commence")
+    else:
+        playing=0
+        print("IA commence")
+    while nbB>0:
+        if playing==1:
+            print("votre tour")
+            print(nbB)
+            nbBenleve=int(input("nombre de batons que vous voulez enlever(1,2ou3)"))
+            if nbBenleve>3:
+                nbBenleve=1
+            if nbBenleve<0:
+                nbBenleve=1
+            playing=0
+        if playing==0:
+            print("tour IA")
+            print(nbB)
+            nbBenleve=IA_joue_batons(b,nbB)
+            playing=1
+        nbB=nbB-nbBenleve
+    if playing==1:
+        print("vous avez gagné")
+    if playing==0:
+        print("l'IA à gagné")
 
 
 def IA_joue_batons(IAplay,nbB):     #chaque IA effectue son coup
@@ -210,9 +247,12 @@ def checkvariables(n):  #n correspond au numéro des termes dont on doit vérifi
         n=n+1
 
 
-def affichageperf():                            #affiche les choix des IA sous forme d"histogramme
+def affichageperf(a):                            #affiche les choix des IA sous forme d"histogramme
     choixmoy,to21=choixmoyen(1)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 10))
+    if a==1:
+        fig, (ax1) = plt.subplots(1, 1, figsize=(10, 10))
+    else:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 10))
     ax1.hist(donéespourhist(choixmoy),range = (1, 21), bins = 21)
     ax1.legend(["choix moyen de l'IA1"])
     ax1.set_xlabel("nombre de bâtons")
@@ -248,45 +288,60 @@ def donéespourhist(choixmoy):
         a=a+1
     return Lchoixhist
 
-def affichagemat():
-    a=0
-    choixmoy,to21=choixmoyen(1)
-    print("#############")
-    while a<len(IA1_t1):
-        somme=IA1_t1[a]+IA1_t2[a]+IA1_t3[a]
-        print(a,"   ",somme,"   ",IA1_t1[a],"   ",IA1_t2[a],"   ",IA1_t3[a],"   ",choixmoy[a])
-        a=a+1
-
+def affichagemat(b):
+    if b==1:
+        a=0
+        choixmoy,to21=choixmoyen(b)
+        print("#############")
+        while a<len(IA1_t1):
+            somme=IA1_t1[a]+IA1_t2[a]+IA1_t3[a]
+            print(a,"   ",somme,"   ",IA1_t1[a],"   ",IA1_t2[a],"   ",IA1_t3[a],"   ",choixmoy[a])
+            a=a+1
+    if b==2:
+        a=0
+        choixmoy,to21=choixmoyen(b)
+        print("#############")
+        while a<len(IA2_t1):
+            somme=IA2_t1[a]+IA2_t2[a]+IA2_t3[a]
+            print(a,"   ",somme,"   ",IA2_t1[a],"   ",IA2_t2[a],"   ",IA2_t3[a],"   ",choixmoy[a])
+            a=a+1
 #############################################################################################################
 #############################################################################################################
-resetIA()
-nbentrainement=1000
-a=0
-while a<nbentrainement:
-    entrainement()
-    a=a+1
+print()
+c=1        
+while c>0:
+    ad = input("admin ou invite?")
+    if ad=="admin":
+        print("admin zone")
+        mode=input("memoire, entrainement ou infos?")
+        if mode=="memoire":
+            mem=input("delete, enregistrer ou charger?")
+            if mem=="delete":
+                resetIA()
+            if mem=="enregistrer":
+                enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3)
+            if mem=="charger":
+                chargerlistes()
+        if mode=="entrainement":
+            nbentrainements=int(input("nombre d'entrainements?"))
+            a=0
+            while a<nbentrainements:
+                entrainement()
+                a=a+1
+        if mode=="infos":
+            print("matrice de l'IA1")
+            affichagemat(1)
+            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+            print("matrice de l'IA2")
+            affichagemat(2)
+            affichageperf(1)       
+    else:
+        print("invité zone")
+        vs=int(input("jouer contre quel adversaire?(1ou2)"))
+        if vs==1:
+            jeucontreIA(vs)
+        if vs==2:
+            jeucontreIA(vs)
+    c=int(input("taper 0 pour quitter, 1 pour rester"))
 
-affichagemat()
 
-affichageperf()
-
-
-    
-
-        
-
-
-
-
-
-
-
-
-
-
-
-            
-
-
-
-    
