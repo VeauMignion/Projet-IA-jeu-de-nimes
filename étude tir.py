@@ -112,10 +112,10 @@ while posy > 0 :
         Vox = Vox+(fv*((Vox-vent)**2)*(m**-1)*dt)
     if Vox > vent :
         Vox = Vox-(fv*((Vox-vent)**2)*(m**-1)*dt)
-    if Voy > 0:
-        Voy = Voy - ((fv * ((Voy) ** 2) * (m ** -1)+g) * dt)
     if Voy < 0:
         Voy = Voy + ((fv * ((Voy) ** 2) * (m ** -1)-g) * dt)
+    if Voy > 0:
+        Voy = Voy - ((fv * ((Voy) ** 2) * (m ** -1)+g) * dt)
         if a == 0:
             a = 1
             hA = posy
@@ -193,10 +193,10 @@ ax2.grid()
 ax3.set_title('représentation des vitesses et accélérations en y')
 ax3.set_xlabel('temps(s)')
 ax3.set_ylabel('vitesse(m*s-1),acc(m*s-2)')
-ax3.set_xlim(0,xmax1)
+ax3.set_xlim(0,1.2*t)
 ax3.set_ylim(ymim3,ymax3)
-ax3.plot(tracking_ay,posxt,'r')
-ax3.plot(tracking_Voy,posxt,'g')
+ax3.plot(temps,tracking_ay,'r')
+ax3.plot(temps,tracking_Voy,'g')
 ax3.legend(['accélérations','vitesses'])
 ax3.grid()
 
