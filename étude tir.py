@@ -4,23 +4,24 @@ from matplotlib import pyplot as plt
 from math import exp, expm1, sqrt
 
 #Définition des valeurs
-vikmh = 100        #vitesse initiale(km/h)
-al = 30           #angle de tir(degrés)
-hi = 0.1            #hauteur initiale de tir(m)
-m = 0.0027             #masse de la boule tirée(kg)
-r = 0.02            #rayon de la boule(m)
+vikmh =487*3.6       #vitesse initiale(km/h)
+al = 30        #angle de tir(degrés)
+hi = 20            #hauteur initiale de tir(m)
+m = 14.5            #masse de la boule tirée(kg)
+r = 0.154            #rayon de la boule(m)
 da = 1.263       #densité de l'air(kg.m^-3)
 Cx = 0.47        #coefficient de trainée de l'objet tiré(sans unité)
 g = 9.81             #intensité de la pesenteur(N.kg^-1)
 t = 0             #temps écoulé depuis le tir(s)
 ventkmh = 0           #vitesse du vent(axe Ox)(km/h)
-pas = 0.001       #pas du calcul(temps)(s)
+pas = 0.0001       #pas du calcul(temps)(s)
 
 #Calcul des autres grandeurs
 vent = ventkmh/3.6 #vitesse du vent(axe Ox)(m/s)
 vi = vikmh/3.6   #vitesse initiale(m/s)
 S = np.pi*r*r    #section frontale de l'objet tiré
 fv = 0.5*da*S*Cx #trainée divisée par la vitesse par rapport à l'air au carré(N.m^-2.s^2)
+j=fv/m           #accélération divisée par la vitesse par rapport à l'air au carré(m^-1)
 P = m*g          #poids de l'objet(N)
 posx = 0         #position x de départ de l'objet
 posy = hi        #position y de départ de l'objet
@@ -54,10 +55,19 @@ posyt = []        #position y de l'objet au cours du temps
 Emt = []          #énergie mécanique au cours de temps
 Ect = []          #énergie cinétique au cours de temps
 Ept = []          #énergie potentielle au cours de temps
+
+#tests modélisations
 tracking_Voy = [] 
 tracking_ay = []
+tracking_ayp=[]
+ts_estim=(j*Voy*Voy+g)/(g*j*Voy)
+model=[]
 
 #Définition des fonctions
+    #fonction de modélisation
+def mod(t):
+    u=-g/((j*t+1)**5)
+    return u
 
 
 #calcul pas à pas
@@ -70,6 +80,9 @@ Ept.append(Ep)
 Emt.append(Em)
 tracking_ay.append(0)
 tracking_Voy.append(0)
+ayp=0
+tracking_ayp.append(ayp)
+model.append(mod(t))
 #   premier calcul
 posx = posx+(Vox*dt)
 posy = posy+(Voy*dt)
@@ -91,7 +104,11 @@ if Vox > vent :
 Voyold=Voy
 Voy = Voy-(fv*((Voy)**2)*(m**-1)*dt)
 Voy = Voy-(P*(m**-1)*dt)
-tracking_ay.append((Voy-Voyold)/dt)
+ay=(Voy-Voyold)/dt
+tracking_ay.append(ay)
+ayp=0
+tracking_ayp.append(ayp)
+model.append(mod(t))
 #calcule le trajet jusqu'a ce que le boule touche le sol
 while posy > 0 :
     posx = posx+(Vox*dt)
@@ -108,6 +125,7 @@ while posy > 0 :
     Ept.append(Ep)
     Emt.append(Em)
     Voyold=Voy
+    ayold=ay
     if Vox < vent :
         Vox = Vox+(fv*((Vox-vent)**2)*(m**-1)*dt)
     if Vox > vent :
@@ -121,7 +139,13 @@ while posy > 0 :
             hA = posy
             dA = posx
             tA = t
-    tracking_ay.append((Voy-Voyold)/dt)
+    if Voy > 0:
+        Voy = Voy - ((fv * ((Voy) ** 2) * (m ** -1)+g) * dt)
+    ay=(Voy-Voyold)/dt
+    tracking_ay.append(ay)
+    ayp=(ay-ayold)/dt
+    tracking_ayp.append(ayp)
+    model.append(mod(t))
 dB = posx
 tB = t
 
@@ -148,23 +172,63 @@ print("absolue = ",sqrt((Voy*Voy)+(Vox*Vox))," m.s-1")
 #calcul des limites du cadre nécéssaires
 #toujours 20% de rab par rapport à la plus grande valeur pour une meilleure lisibilité
 #les maximum des abscisses et des ordonnées doivent être identiques
+if hA<hi:
+    hA=hi
+
 if dB > hA :
     xmax1 = 1.2*dB
     ymax1=xmax1
 else:
     ymax1 = 1.2*hA
-    xmax1=ymax1
+    xmax1=1.2*dB
 ymax2 = 1.2*EMmax
-xmax2 = xmax1
+xmax2 = 1.2*dB
 
-ymim3=1.2*tracking_ay[2]
-ymax3=1.2*tracking_Voy[2]
+if tracking_ay[2]<tracking_Voy[2]:
+    ymim3=1.2*tracking_ay[2]
+    ymax3=1.2*tracking_Voy[2]
+else:
+    ymim3=1.2*tracking_Voy[2]
+    ymax3=1.2*tracking_ay[2]
 xmax3=1.2*t
+
+if tracking_ay[3]<tracking_ayp[3]:
+    if tracking_ayp[len(tracking_ayp)-1]<tracking_ayp[3]:
+        ymax4=1.2*tracking_ayp[3]
+        if tracking_ay[3]<tracking_ayp[len(tracking_ayp)-1]:
+            ymin4=1.2*tracking_ay[3]
+        else:
+            ymin4=1.2*tracking_ayp[len(tracking_ayp)-1]
+    else:
+        ymax4=1.2*tracking_ayp[len(tracking_ayp)-1] 
+        ymin4=1.2*tracking_ay[3]
+else:
+    if tracking_ay[3]>tracking_ayp[len(tracking_ayp)-1]:
+        ymax4=tracking_ay[3]
+        if tracking_ayp[3]<tracking_ayp[len(tracking_ayp)-1]:
+            ymin4=tracking_ayp[3]
+        else:
+            ymin4=tracking_ayp[len(tracking_ayp)-1]
+    else:
+        ymax4=1.2*tracking_ayp[len(tracking_ayp)-1] 
+        ymin4=1.2*tracking_ayp[3]
+
+if ymax3**2<1:
+    ymax3=1
+    
+if ymax4**2<1:
+    ymax4=1
+
+ymax4=max(tracking_ayp)
+
+#Tracé des estimations
+tsy=[ymim3,ymax3]
+tsx=[ts_estim,ts_estim]
 
 #calcul global
 
 #créer les 2 figures
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(8, 10))
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(8, 8))
 
 
 #Tracer le graphique courbe des tirs(1)
@@ -200,10 +264,21 @@ ax3.plot(temps,tracking_Voy,'g')
 ax3.legend(['accélérations','vitesses'])
 ax3.grid()
 
+ax4.set_title('représentation des vitesses et accélérations en y')
+ax4.set_xlabel('temps(s)')
+ax4.set_ylabel('vitesse(m*s-1),acc(m*s-2)')
+ax4.set_xlim(0,1.2*t)
+ax4.set_ylim(ymin4,ymax4)
+ax4.plot(temps,tracking_ay,'r')
+ax4.plot(temps,tracking_ayp,'grey')
+ax4.legend(['accélérations','dérivé d-accélération'])
+ax4.grid()
+
 
 #afficher les deux figures ensemble
 plt.tight_layout()  # Pour éviter que les titres et les axes se chevauchent
 plt.show()
 
 #informations:
-
+print("@@@@@@@@@@@@@@")
+print(ts_estim)
