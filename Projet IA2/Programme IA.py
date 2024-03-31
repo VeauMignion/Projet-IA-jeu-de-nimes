@@ -57,7 +57,7 @@ def defIAparfaite():
             IAp_t1.append(0)
             IAp_t2.append(0)
             IAp_t3.append(90)
-    a=a+1
+        a=a+1
     return IAp_t1,IAp_t2,IAp_t3
 
 IAp_t1,IAp_t2,IAp_t3=defIAparfaite()
@@ -364,8 +364,8 @@ def proxperfect(b):
 #############################################################################################################
 #############################################################################################################
 print()
-c=1        
-while c>0:
+
+def main():
     ad = input("admin ou invite?")
     if ad=="admin":
         print("admin zone")
@@ -410,7 +410,7 @@ while c>0:
         if vs==2:
             jeucontreIA(vs)
     c=input("taper 0 pour quitter, 1 pour rester")
-    if c=="0":
-        c=0
-    else:
-        c=1
+    if c=="1":
+        main()
+
+main()
