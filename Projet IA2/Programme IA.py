@@ -57,6 +57,7 @@ def defIAparfaite():
             IAp_t1.append(0)
             IAp_t2.append(0)
             IAp_t3.append(90)
+    a=a+1
     return IAp_t1,IAp_t2,IAp_t3
 
 IAp_t1,IAp_t2,IAp_t3=defIAparfaite()
