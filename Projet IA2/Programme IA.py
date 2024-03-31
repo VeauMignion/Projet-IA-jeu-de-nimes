@@ -7,7 +7,8 @@ from matplotlib import pyplot as plt
 
 
 #paramêtres du jeu de Nîmes
-nbB=21
+nbBi=21
+nbB=nbBi
 
 #facteur des IAs:
 y=0 #capacité des IA a tester de nouvelles choses, si =0, l'IA pourra abandonner totalement une possibilité
@@ -24,7 +25,7 @@ def resetIA():        #on reset les listes des IA (dangereux)
     IA2_t2=[]
     IA2_t3=[]
     a=0
-    while a<nbB:
+    while a<nbBi:
         IA1_t1.append(30)
         IA1_t2.append(30)
         IA1_t3.append(30)
@@ -33,6 +34,32 @@ def resetIA():        #on reset les listes des IA (dangereux)
         IA2_t3.append(30)
         a=a+1
     return IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3
+
+def defIAparfaite():
+    IAp_t1=[]
+    IAp_t2=[]
+    IAp_t3=[]
+    a=0
+    while a<nbBi:
+        if a%4==0:
+            IAp_t1.append(30)
+            IAp_t2.append(30)
+            IAp_t3.append(30)
+        if a%4==1:
+            IAp_t1.append(90)
+            IAp_t2.append(0)
+            IAp_t3.append(0)
+        if a%4==2:
+            IAp_t1.append(0)
+            IAp_t2.append(90)
+            IAp_t3.append(0)
+        if a%4==3:
+            IAp_t1.append(0)
+            IAp_t2.append(0)
+            IAp_t3.append(90)
+    return IAp_t1,IAp_t2,IAp_t3
+
+IAp_t1,IAp_t2,IAp_t3=defIAparfaite()
 
 def enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3):
     with open('stokage.txt', 'wb') as e:  #on stocke les listes definissant les IA
@@ -62,8 +89,8 @@ def chargerlistes():
         IA2_t2 = np.load(e)
         IA2_t3 = np.load(e)
 
-def entrainement():     #fonction que l'on va faire en boucle pour entrainer les IA
-    nbB=21
+def entrainement(d):     #fonction que l'on va faire en boucle pour entrainer les IA
+    nbB=nbBi
     LPcoupsIA1=[]    #listes dans lequelles on va enregistrer les coups joués avec un P=position du coup,  
     LcoupsIA1=[]     #sans=nombre de batons enlevés
     LPcoupsIA2=[]
@@ -85,7 +112,8 @@ def entrainement():     #fonction que l'on va faire en boucle pour entrainer les
             IAplay=1
         nbB=nbB-nbBenleve
     win=IAplay                                        #IA qui a gagné
-    rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2)
+    if d==1:
+        rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2)
     apprentissage(LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2,win)
 
 def rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2):
@@ -101,9 +129,8 @@ def rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2):
     print()
 
 
-
 def jeucontreIA(b):
-    nbB=21
+    nbB=nbBi
     if random.randint(0,1)>=0.5:
         playing=1
         print("Joueur commence")
@@ -253,7 +280,7 @@ def affichageperf(a):                            #affiche les choix des IA sous 
         fig, (ax1) = plt.subplots(1, 1, figsize=(10, 10))
     else:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 10))
-    ax1.hist(donéespourhist(choixmoy),range = (1, 21), bins = 21)
+    ax1.hist(donéespourhist(choixmoy),range = (1, nbBi), bins = nbBi)
     ax1.legend(["choix moyen de l'IA1"])
     ax1.set_xlabel("nombre de bâtons")
     ax1.set_ylabel("bâtons enlevés")
@@ -271,7 +298,7 @@ def choixmoyen(nbIA):
             a=a+1
             to21.append(a)
     else:
-        while a<len(IA1_t1):
+        while a<len(IA2_t1):
             choixmoy.append((1*IA2_t1[a]+2*IA2_t2[a]+3*IA2_t3[a])/(IA2_t1[a]+IA2_t2[a]+IA2_t3[a]))
             a=a+1
             to21.append(a)
@@ -305,6 +332,32 @@ def affichagemat(b):
             somme=IA2_t1[a]+IA2_t2[a]+IA2_t3[a]
             print(a,"   ",somme,"   ",IA2_t1[a],"   ",IA2_t2[a],"   ",IA2_t3[a],"   ",choixmoy[a])
             a=a+1
+
+def proxperfect(b):
+    dmax=0
+    if b==1:
+        a=0
+        sommedist=0
+        while a<len(IA1_t1):
+            if a%4==0:
+                distu=0
+            else:
+                distu=abs(IA1_t1[a]-IAp_t1[a])+abs(IA1_t2[a]-IAp_t2[a])+abs(IA1_t3[a]-IAp_t3[a])
+                dmax=dmax+180
+            sommedist=sommedist+distu
+    else:
+        a=0
+        sommedist=0
+        while a<len(IA1_t1):
+            if a%4==0:
+                distu=0
+            else:
+                distu=abs(IA2_t1[a]-IAp_t1[a])+abs(IA2_t2[a]-IAp_t2[a])+abs(IA2_t3[a]-IAp_t3[a])
+                dmax=dmax+180
+            sommedist=sommedist+distu
+    accurate=(sommedist/dmax)*100
+    return accurate
+
 #############################################################################################################
 #############################################################################################################
 print()
@@ -324,21 +377,31 @@ while c>0:
             if mem=="charger":
                 chargerlistes()
         if mode=="entrainement":
-            nbentrainements=int(input("nombre d'entrainements?"))
-            a=0
-            while a<nbentrainements:
-                entrainement()
-                a=a+1
+            rep=input("nombre d'entrainements?(ou 'avec infos')")
+            if rep=="avec infos":
+                nbentrainements=int(input("nombre d'entrainements?"))
+                a=0
+                while a<nbentrainements:
+                    entrainement(1)
+                    a=a+1
+            else:
+                nbentrainements=int(rep)
+                a=0
+                while a<nbentrainements:
+                    entrainement(0)
+                    a=a+1
         if mode=="infos":
-            print("matrice de l'IA1")
+            print("matrice de l'IA1,    pourcentage de perfection:",proxperfect(1))
             affichagemat(1)
             print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-            print("matrice de l'IA2")
+            print("matrice de l'IA2,    pourcentage de perfection:",proxperfect(2))
             affichagemat(2)
             affichageperf(1)       
     if ad=="invite":
         print("invité zone")
         vs=int(input("jouer contre quel adversaire?(1ou2)"))
+        if vs==0:
+            jeucontreIA(vs)
         if vs==1:
             jeucontreIA(vs)
         if vs==2:
@@ -348,5 +411,3 @@ while c>0:
         c=0
     else:
         c=1
-
-
