@@ -345,6 +345,7 @@ def proxperfect(b):
                 distu=abs(IA1_t1[a]-IAp_t1[a])+abs(IA1_t2[a]-IAp_t2[a])+abs(IA1_t3[a]-IAp_t3[a])
                 dmax=dmax+180
             sommedist=sommedist+distu
+            a=a+1
     else:
         a=0
         sommedist=0
@@ -355,6 +356,7 @@ def proxperfect(b):
                 distu=abs(IA2_t1[a]-IAp_t1[a])+abs(IA2_t2[a]-IAp_t2[a])+abs(IA2_t3[a]-IAp_t3[a])
                 dmax=dmax+180
             sommedist=sommedist+distu
+            a=a+1
     accurate=(sommedist/dmax)*100
     return accurate
 
