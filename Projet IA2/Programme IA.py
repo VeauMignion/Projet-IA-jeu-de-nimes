@@ -139,6 +139,7 @@ def jeucontreIA(b):
         playing=0
         print("IA commence")
     while nbB>0:
+        joue=0
         if playing==1:
             print("votre tour")
             print(nbB)
@@ -149,12 +150,14 @@ def jeucontreIA(b):
                 nbBenleve=1
             playing=0
             nbB=nbB-nbBenleve
+            joue=1
         if playing==0:
-            print("tour IA")
-            print(nbB)
-            nbBenleve=IA_joue_batons(b,nbB)
-            playing=1
-            nbB=nbB-nbBenleve
+            if joue==0:
+                print("tour IA")
+                print(nbB)
+                nbBenleve=IA_joue_batons(b,nbB)
+                playing=1
+                nbB=nbB-nbBenleve
     if playing==1:
         print("vous avez gagné")
     if playing==0:
