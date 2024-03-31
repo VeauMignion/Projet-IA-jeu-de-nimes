@@ -269,24 +269,3 @@ while a<nbentrainement:
 affichagemat()
 
 affichageperf()
-
-
-    
-
-        
-
-
-
-
-
-
-
-
-
-
-
-            
-
-
-
-    
