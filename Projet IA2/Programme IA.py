@@ -87,7 +87,7 @@ def entrainement():     #fonction que l'on va faire en boucle pour entrainer les
             IAplay=1
         nbB=nbB-nbBenleve
     win=IAplay                                        #IA qui a gagné
-    rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2)
+    #rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2)
     apprentissage(LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2,win)
 
 def rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2):
@@ -122,12 +122,13 @@ def jeucontreIA(b):
             if nbBenleve<0:
                 nbBenleve=1
             playing=0
+            nbB=nbB-nbBenleve
         if playing==0:
             print("tour IA")
             print(nbB)
             nbBenleve=IA_joue_batons(b,nbB)
             playing=1
-        nbB=nbB-nbBenleve
+            nbB=nbB-nbBenleve
     if playing==1:
         print("vous avez gagné")
     if playing==0:
@@ -335,13 +336,17 @@ while c>0:
             print("matrice de l'IA2")
             affichagemat(2)
             affichageperf(1)       
-    else:
+    if ad=="invite":
         print("invité zone")
         vs=int(input("jouer contre quel adversaire?(1ou2)"))
         if vs==1:
             jeucontreIA(vs)
         if vs==2:
             jeucontreIA(vs)
-    c=int(input("taper 0 pour quitter, 1 pour rester"))
+    c=input("taper 0 pour quitter, 1 pour rester")
+    if c=="0":
+        c=0
+    else:
+        c=1
 
 
