@@ -354,7 +354,7 @@ def proxperfect(b):
     else:
         a=0
         sommedist=0
-        while a<len(IA1_t1):
+        while a<len(IA2_t1):
             if a%4==0:
                 distu=0
             else:
