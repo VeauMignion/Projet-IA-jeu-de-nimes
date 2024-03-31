@@ -158,6 +158,7 @@ def jeucontreIA(b):
                 nbBenleve=IA_joue_batons(b,nbB)
                 playing=1
                 nbB=nbB-nbBenleve
+        print()
     if playing==1:
         print("vous avez gagné")
     if playing==0:
