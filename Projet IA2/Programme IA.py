@@ -43,8 +43,6 @@ def enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3):
         np.save(e, np.array(IA2_t2))
         np.save(e, np.array(IA2_t3))
 
-#IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3=resetIA()
-#enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3)
 
 #Rechargement des données
 with open('stokage.txt', 'rb') as e:     #on charge les listes des IA
@@ -87,7 +85,7 @@ def entrainement():     #fonction que l'on va faire en boucle pour entrainer les
             IAplay=1
         nbB=nbB-nbBenleve
     win=IAplay                                        #IA qui a gagné
-    #rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2)
+    rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2)
     apprentissage(LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2,win)
 
 def rapportentrainement(win,LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2):
@@ -119,7 +117,7 @@ def jeucontreIA(b):
             nbBenleve=int(input("nombre de batons que vous voulez enlever(1,2ou3)"))
             if nbBenleve>3:
                 nbBenleve=1
-            if nbBenleve<0:
+            if nbBenleve<1:
                 nbBenleve=1
             playing=0
             nbB=nbB-nbBenleve
@@ -180,6 +178,7 @@ def apprentissage(LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2,win):
         checkvariables(LPcoupsIA1[a])
         a=a+1
     fm=f
+    a=0
     if win==1:
         fm=(-1)*f                         #on ajuste le modifier pour qu'il pénalise l'IA si elle a perdu
     while a<len(LPcoupsIA2):
@@ -195,7 +194,7 @@ def apprentissage(LPcoupsIA1,LcoupsIA1,LPcoupsIA2,LcoupsIA2,win):
             IA2_t1[LPcoupsIA2[a]]=IA2_t1[LPcoupsIA2[a]]-fm
             IA2_t2[LPcoupsIA2[a]]=IA2_t2[LPcoupsIA2[a]]-fm
             IA2_t3[LPcoupsIA2[a]]=IA2_t3[LPcoupsIA2[a]]+2*fm
-        checkvariables(LPcoupsIA2[a])
+            checkvariables(LPcoupsIA2[a])
         a=a+1
 
 
@@ -318,7 +317,8 @@ while c>0:
         if mode=="memoire":
             mem=input("delete, enregistrer ou charger?")
             if mem=="delete":
-                resetIA()
+                IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3=resetIA()
+                enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3)
             if mem=="enregistrer":
                 enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3)
             if mem=="charger":
