@@ -362,7 +362,7 @@ def proxperfect(b):
                 dmax=dmax+180
             sommedist=sommedist+distu
             a=a+1
-    accurate=(sommedist/dmax)*100
+    accurate=100-(sommedist/dmax)*100
     return accurate
 
 #############################################################################################################
