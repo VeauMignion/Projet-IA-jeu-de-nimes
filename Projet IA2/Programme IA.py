@@ -379,6 +379,7 @@ def main():
             if mem=="delete":
                 IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3=resetIA()
                 enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3)
+                print("mémoire reset")
             if mem=="enregistrer":
                 enregistrementIA(IA1_t1,IA1_t2,IA1_t3,IA2_t1,IA2_t2,IA2_t3)
             if mem=="charger":
@@ -388,9 +389,21 @@ def main():
             if rep=="avec infos":
                 nbentrainements=int(input("nombre d'entrainements?"))
                 a=0
+                lisprox=[]
+                lisentrai=[]
                 while a<nbentrainements:
                     entrainement(1)
+                    lisprox.append(proxperfect(1))
+                    lisentrai.append(a)
                     a=a+1
+                fig, (ax1) = plt.subplots(1, 1, figsize=(10, 10))
+                ax1.plot(lisentrai,lisprox,'r')
+                ax1.legend(["niveau de l'IA"])
+                ax1.set_xlabel("nombre d'entrainement faits")
+                ax1.set_ylabel("proximité de la perfection (%)")
+                ax1.set_title("Evolution de la performance de l'IA1")
+                ax1.grid()
+                plt.show()
             else:
                 nbentrainements=int(rep)
                 a=0
