@@ -4,6 +4,7 @@
 import random
 import numpy as np
 from matplotlib import pyplot as plt
+import sys
 
 
 #paramêtres du jeu de Nîmes
@@ -163,6 +164,9 @@ def jeucontreIA(b):
         print("vous avez gagné")
     if playing==0:
         print("l'IA à gagné")
+
+def affichagejeu(nbB):
+    print("pas encore fait")
 
 
 def IA_joue_batons(IAplay,nbB):     #chaque IA effectue son coup
