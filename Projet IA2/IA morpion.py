@@ -89,4 +89,17 @@ def resetIAS():
         IA2cp7.append(0)
         IA2cp8.append(0)
         IA2cp9.append(0)
-        
+    IA1=np.array([IA1ncalq,IA1c1,IA1c2,IA1c3,IA1c4,IA1c5,IA1c6,IA1c7,IA1c8,IA1c9,IA1cp1,IA1cp2,IA1cp3,IA1cp4,IA1cp5,IA1cp6,IA1cp7,IA1cp8,IA1cp9])
+    IA2=np.array([IA2ncalq,IA2c1,IA2c2,IA2c3,IA2c4,IA2c5,IA2c6,IA2c7,IA2c8,IA2c9,IA2cp1,IA2cp2,IA2cp3,IA2cp4,IA2cp5,IA2cp6,IA2cp7,IA2cp8,IA2cp9])
+    IA1[0,0]=1
+    IA1[0,0]=1
+    return IA1,IA2
+IA1,IA2=resetIAS()
+def entrainement():
+    plato=np.array([[0,0,0],[0,0,0],[0,0,0]])
+    print(plato)
+    fingame=checkend(plato)
+
+def checkend(plato):
+    for i in range(0,2):
+        if plato[i,1] : 

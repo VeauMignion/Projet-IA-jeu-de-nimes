@@ -1,6 +1,9 @@
 import numpy as np
-from tempfile import TemporaryFile
 
-a=[1,2]
+a=[1,2,3]
+b=[4,5,6]
 
-print(a[1])
+c=np.array([a,b])
+
+print(c)
+print(c[1,1])
