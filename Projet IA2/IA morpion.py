@@ -9,8 +9,14 @@ import random
 #pour plus d'infos voir documentation-IA-morpion.pdf
 
 
-#on remet à 0 les IAS:
-def resetIAS():
+
+#modifications possibles
+modulateur=5
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+##fonctions de manipulation de la mémoire des IAS
+def resetIAS(): #on remet à 0 les IAS:
     IA1ncalq=[] #colonne 1 de la matice, liste des numéros des calques
     IA1c1=[]  #colonnes 2 à 10 de la matrice, informations sur les cases que chaque calque doit reconnaitre 
     IA1c2=[]
@@ -94,20 +100,41 @@ def resetIAS():
     IA2=np.array([IA2ncalq,IA2c1,IA2c2,IA2c3,IA2c4,IA2c5,IA2c6,IA2c7,IA2c8,IA2c9,IA2cp1,IA2cp2,IA2cp3,IA2cp4,IA2cp5,IA2cp6,IA2cp7,IA2cp8,IA2cp9])
     IA1[0,0]=1
     IA2[0,0]=1
+    for i in range(10,19):
+        IA1[i,0]=10
+        IA2[i,0]=10
     return IA1,IA2
 IA1,IA2=resetIAS()
 
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+##fonctions d'entraînement
 def entrainement():
-    plato=np.array([[0,0,0],[0,0,0],[0,0,0]])
+    plato=np.array([[0,0,0],[0,0,0],[0,0,0]]) #platon=np.array([[1,2,3],[4,5,6],[7,8,9]])
     fingame=0
     print(plato)
     if random.randint(0,1)>=0.5:     #On choisit quelle IA commence
         IAjoue=1
     else:
         IAjoue=0
+    IA1coupsjoués=[]
+    IA2coupsjoués=[]
     while fingame==0:
         fingame=checkend(plato)
-        plato=jeuIA(plato,IAjoue)
+        plato,coupjoué=jeuIA(plato,IAjoue)
+        if IAjoue==1:
+            IAjoue=0
+            IA1coupsjoués.append(coupjoué)
+        else:
+            IAjoue=1
+            IA2coupsjoués.append(coupjoué)
+    if fingame==-1:
+        win=-1
+    else:
+        win=IAjoue
+    IA1,AI2=amélioration(win,IA1coupsjoués,IA2coupsjoués)
+    
+    
 
 
 def checkend(plato):
@@ -121,26 +148,334 @@ def checkend(plato):
             test=plato[0,i]
             if plato[1,i]==plato[2,i]==test:
                 fin=1
-    if plato[0,0]==plato[1,1]==plato[2,2]:
+    if plato[0,0]==plato[1,1]==plato[2,2]: #les diagonales
         if plato[1,1]>0:
             fin=1
     if plato[2,0]==plato[1,1]==plato[0,2]:
         if plato[1,1]>0:
             fin=1
+    Lplato=dematrix(plato)
+    fullmap=0
+    for i in range(0,9):
+        if Lplato[i]==0:
+            fullmap=1
+    if fullmap==0:
+        fin=-1
     return fin
 
+
+
+
 def jeuIA(plato,IAjoue):
+    situation=dematrix(plato)
     if IAjoue==1:
-        nclaqutil=meilleurcalq(plato,IAjoue)
+        Lplato=dematrix(plato)
+        bestcalq=meilleurcalq(plato,IAjoue)
+        calqdecision=[]
+        for i in range(10,19):
+            calqdecision.append(IA1[i,bestcalq[0]])
+        calqdecision=platourne(calqdecision,bestcalq[1])
+        choix=random.randint(0,90)
+        casechoisie=0
+        while choix>0:
+            choix=choix-calqdecision[casechoisie]
+            casechoisie=casechoisie+1
+        if Lplato[casechoisie]==0:
+            Lplato[casechoisie]=1
+        else:
+            print("ERROR")
+        plato=rematrix(Lplato)
+    else:
+        Lplato=dematrix(plato)
+        bestcalq=meilleurcalq(plato,IAjoue)
+        calqdecision=[]
+        for i in range(10,19):
+            calqdecision.append(IA2[i,bestcalq[0]])
+        calqdecision=platourne(calqdecision,bestcalq[1])
+        choix=random.randint(0,90)
+        casechoisie=0
+        while choix>0:
+            choix=choix-calqdecision[casechoisie]
+            casechoisie=casechoisie+1
+        if Lplato[casechoisie]==0:
+            Lplato[casechoisie]=1
+        else:
+            print("ERROR")
+        plato=rematrix(Lplato)
+    infos=bestcalq
+    casedansref=[]
+    for i in range (0,9):
+        if i==casechoisie:
+            casedansref.append(1)
+        else:
+            casedansref.append(0)
+    casedansref=platourne(casedansref,4-bestcalq[1])
+    for i in range(0,9):
+        if casedansref[i]==1:
+            casejouée=i
+    infos.append(casejouée)
+    for i in range(0,9):
+        infos.append(situation[i]) #à la fin, infos a 13éléments: n°calque, rota appliquée, score, n°case jouée puis 9 pour la situation 
+    return plato, infos
+        
+        
+
 
 
 
 def meilleurcalq(plato,IAjoue):
     if IAjoue==1:
-        situation=dematrix(plato)
+        bestcalq=[]
+        hscore=0   #le plus haut score obtenu
+        situ=dematrix(plato)
+        nteste=0
+        while nteste+1==IA1[0,nteste]:
+            rota=0
+            calqtz=[]                   #liste du calque testé (sans rotation)
+            for i in range(1,10):
+                calqtz.append(IA1[i,nteste])
+            while rota<4:
+                calqt=platourne(calqtz,rota)
+                score=0
+                for i in range(0,9):
+                    if situ[i]==calqt[i]:
+                        score=score+10
+                    else:
+                        if situ[i]==2:
+                            score=score+0
+                        else:
+                            if calqt[i]==0:
+                                score=score+0
+                            else:
+                                score=score+4
+                if score>hscore:
+                    bestcalq=[nteste,rota,score]
+                    hscore=score
+                rota=rota+1
+            nteste=nteste+1
+    else:
+        bestcalq=[]
+        hscore=0   #le plus haut score obtenu
+        situ=dematrix(plato)
+        nteste=0
+        while nteste+1==IA2[0,nteste]:
+            rota=0
+            calqtz=[]                   #liste du calque testé (sans rotation)
+            for i in range(1,10):
+                calqtz.append(IA2[i,nteste])
+            while rota<4:
+                calqt=platourne(calqtz,rota)
+                score=0
+                for i in range(0,9):
+                    if situ[i]==calqt[i]:
+                        score=score+10
+                    else:
+                        if situ[i]==2:
+                            score=score+0
+                        else:
+                            if calqt[i]==0:
+                                score=score+0
+                            else:
+                                score=score+4
+                if score>hscore:
+                    bestcalq=[nteste,rota,score]
+                    hscore=score
+                rota=rota+1
+            nteste=nteste+1
+    return bestcalq
 
 
+
+
+def  amélioration(win,IA1coupsjoués,IA2coupsjoués):
+    mod=modulateur
+    IA1coupsjoués=np.array(IA1coupsjoués)
+    IA1nbcoups=np.size(IA1coupsjoués)/13
+    b=0
+    while b+1==IA1[0,b]:
+        b=b+1
+    ntotcalq=b
+    if win==1:
+        modif=mod
+    else:
+        if win==-1:
+            modif=0
+        else:
+            modif=-mod
+    for i in range(0,IA1nbcoups):
+        ncalq=IA1coupsjoués[i,0]
+        if IA1coupsjoués[i,2]==90:
+            caseslibres=0
+            for c in range(4,13):
+                if IA1coupsjoués[i,c]==0:
+                    caseslibres=caseslibres+1
+            for a in range(10,19):
+                if a==IA1coupsjoués[i,3]:
+                    IA1[a,ncalq]=IA1[a,ncalq]+modif
+                else:
+                    if IA1[a-9,ncalq]==0:
+                        IA1[a,ncalq]=IA1[a,ncalq]-(modif/(caseslibres-1))            
+        else:
+            if IA1[0,ntotcalq]==0:
+                IA1[0,ntotcalq]=ntotcalq+1
+                caseslibres=0
+                for c in range(4,13):
+                    IA1[c-3,ntotcalq]=IA1coupsjoués[i,c]
+                    if IA1coupsjoués[i,c]==0:
+                        caseslibres=caseslibres+1
+                for d in range(10,19):
+                    if IA1[d-9,ntotcalq]==0:
+                        IA1[d,ntotcalq]=90/caseslibres
+                    else:
+                        IA1[d,ntotcalq]=0
+            else:
+                print("ERROR def amélioration")
+            ntotcalq=ntotcalq+1
+    réparerreurs()                
+    #
+    #
+    #
+    IA2coupsjoués=np.array(IA2coupsjoués)
+    mod=modulateur
+    IA2coupsjoués=np.array(IA2coupsjoués)
+    IA2nbcoups=np.size(IA2coupsjoués)/13
+    b=0
+    while b+1==IA2[0,b]:
+        b=b+1
+    ntotcalq=b
+    if win==0:
+        modif=mod
+    else:
+        if win==-1:
+            modif=0
+        else:
+            modif=-mod
+    for i in range(0,IA2nbcoups):
+        ncalq=IA2coupsjoués[i,0]
+        if IA2coupsjoués[i,2]==90:
+            caseslibres=0
+            for c in range(4,13):
+                if IA2coupsjoués[i,c]==0:
+                    caseslibres=caseslibres+1
+            for a in range(10,19):
+                if a==IA2coupsjoués[i,3]:
+                    IA2[a,ncalq]=IA2[a,ncalq]+modif
+                else:
+                    if IA2[a-9,ncalq]==0:
+                        IA2[a,ncalq]=IA2[a,ncalq]-(modif/(caseslibres-1))            
+        else:
+            if IA2[0,ntotcalq]==0:
+                IA2[0,ntotcalq]=ntotcalq+1
+                caseslibres=0
+                for c in range(4,13):
+                    IA2[c-3,ntotcalq]=IA2coupsjoués[i,c]
+                    if IA2coupsjoués[i,c]==0:
+                        caseslibres=caseslibres+1
+                for d in range(10,19):
+                    if IA2[d-9,ntotcalq]==0:
+                        IA2[d,ntotcalq]=90/caseslibres
+                    else:
+                        IA2[d,ntotcalq]=0
+            else:
+                print("ERROR def amélioration")
+            ntotcalq=ntotcalq+1
+    réparerreurs()
+    réparerreurs()
+
+
+
+def réparerreurs():
+    e=0
+    while IA1[0,e]==e+1:
+        caseslib=0
+        Lcaseslib=[]
+        for c in range(10,19):
+            if IA1[c-9,e]==0:
+                caseslib=caseslib+1
+                Lcaseslib.append(c)
+        for a in range(0,len(Lcaseslib)):
+            if IA1[Lcaseslib[a],e]<0:
+                surmoins=0-IA1[Lcaseslib[a],e]
+                IA1[Lcaseslib[a],e]=IA1[Lcaseslib[a],e]+surmoins
+                diviseur=len(Lcaseslib)
+                for b in range(0,len(Lcaseslib)):
+                    if IA1[Lcaseslib[b],e]<=0:
+                        diviseur=diviseur-1
+                for d in range(0,len(Lcaseslib)):
+                    if IA1[Lcaseslib[d],e]>0:
+                        IA1[Lcaseslib[d],e]=IA1[Lcaseslib[d],e]-(surmoins/diviseur)
+        e=e+1
+    #
+    #
+    #
+    e=0
+    while IA1[0,e]==e+1:
+        caseslib=0
+        Lcaseslib=[]
+        for c in range(10,19):
+            if IA2[c-9,e]==0:
+                caseslib=caseslib+1
+                Lcaseslib.append(c)
+        for a in range(0,len(Lcaseslib)):
+            if IA2[Lcaseslib[a],e]<0:
+                surmoins=0-IA2[Lcaseslib[a],e]
+                IA2[Lcaseslib[a],e]=IA2[Lcaseslib[a],e]+surmoins
+                diviseur=len(Lcaseslib)
+                for b in range(0,len(Lcaseslib)):
+                    if IA2[Lcaseslib[b],e]<=0:
+                        diviseur=diviseur-1
+                for d in range(0,len(Lcaseslib)):
+                    if IA2[Lcaseslib[d],e]>0:
+                        IA2[Lcaseslib[d],e]=IA2[Lcaseslib[d],e]-(surmoins/diviseur)
+        e=e+1
+
+                        
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+##fonctions de manipulations du plato/calque
 def dematrix(plato):
     dematrixed=[]
-    for w in range(1,10):
-        
+    a=0
+    while a<=2:
+        b=0
+        while b<=2:
+            dematrixed.append(plato[a,b])
+            b=b+1
+        a=a+1
+    return dematrixed
+
+def rematrix(Lplato):
+    untiers=Lplato[0:3]
+    deuxtiers=Lplato[3:6]
+    troistiers=Lplato[6:9]
+    plato=np.array([untiers,deuxtiers,troistiers])
+    return plato
+
+def platourne(Lplato,rota):
+    platour=[]
+    if rota==0:
+        platour=Lplato
+    if rota==1:
+        a=2
+        for i in range(0,9):
+            platour.append(Lplato[a])
+            if a>5:
+                a=a-7
+            else:
+                a=a+3
+    if rota==2:
+        a=8
+        for i in range(0,9):
+            platour.append(Lplato[a])
+            a=a-1
+    if rota==3:
+        a=6
+        for i in range(0,9):
+            platour.append(Lplato[a])
+            if a<3:
+                a=a+7
+            else:
+                a=a-3
+    if rota==4:
+        platour=Lplato
+    return platour
