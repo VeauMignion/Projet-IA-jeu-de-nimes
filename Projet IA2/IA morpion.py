@@ -104,15 +104,26 @@ def resetIAS(): #on remet à 0 les IAS:
         IA1[i,0]=10
         IA2[i,0]=10
     return IA1,IA2
+
 IA1,IA2=resetIAS()
 
+def enregistrementIA(IA1,IA2):
+    with open('stokage.txt', 'wb') as e:  #on stocke les listes definissant les IA
+        np.save(e, IA1)
+        np.save(e, IA2)
+
+
+def chargerlistes():
+    with open('stokage.txt', 'rb') as e:     #on charge les listes des IA
+        IA1 = np.load(e)
+        IA2 = np.load(e)
+    return IA1,IA2
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ##fonctions d'entraînement
-def entrainement():
+def entrainement(suivi):
     plato=np.array([[0,0,0],[0,0,0],[0,0,0]]) #platon=np.array([[1,2,3],[4,5,6],[7,8,9]])
     fingame=0
-    print(plato)
     if random.randint(0,1)>=0.5:     #On choisit quelle IA commence
         IAjoue=1
     else:
@@ -120,6 +131,9 @@ def entrainement():
     IA1coupsjoués=[]
     IA2coupsjoués=[]
     while fingame==0:
+        if suivi==1:
+            print()
+            print(plato)
         fingame=checkend(plato)
         plato,coupjoué=jeuIA(plato,IAjoue)
         if IAjoue==1:
@@ -132,7 +146,8 @@ def entrainement():
         win=-1
     else:
         win=IAjoue
-    IA1,AI2=amélioration(win,IA1coupsjoués,IA2coupsjoués)
+    print("@@@@@@@@@@@")
+    amélioration(win,IA1coupsjoués,IA2coupsjoués)
     
     
 
@@ -176,14 +191,20 @@ def jeuIA(plato,IAjoue):
             calqdecision.append(IA1[i,bestcalq[0]])
         calqdecision=platourne(calqdecision,bestcalq[1])
         choix=random.randint(0,90)
-        casechoisie=0
+        casechoisie=-1
         while choix>0:
             choix=choix-calqdecision[casechoisie]
             casechoisie=casechoisie+1
         if Lplato[casechoisie]==0:
             Lplato[casechoisie]=1
         else:
-            print("ERROR")
+            casetrouve=0
+            while casetrouve==0:
+                casetest=int(round(random.randint(0,8)))
+                if Lplato[casetest]==0:
+                    Lplato[casetest]=1
+                    casetrouve=1
+            casechoisie=casetest
         plato=rematrix(Lplato)
     else:
         Lplato=dematrix(plato)
@@ -193,14 +214,20 @@ def jeuIA(plato,IAjoue):
             calqdecision.append(IA2[i,bestcalq[0]])
         calqdecision=platourne(calqdecision,bestcalq[1])
         choix=random.randint(0,90)
-        casechoisie=0
+        casechoisie=-1
         while choix>0:
             choix=choix-calqdecision[casechoisie]
             casechoisie=casechoisie+1
         if Lplato[casechoisie]==0:
-            Lplato[casechoisie]=1
+            Lplato[casechoisie]=2
         else:
-            print("ERROR")
+            casetrouve=0
+            while casetrouve==0:
+                casetest=int(round(random.randint(0,8)))
+                if Lplato[casetest]==0:
+                    Lplato[casetest]=2
+                    casetrouve=1
+            casechoisie=casetest
         plato=rematrix(Lplato)
     infos=bestcalq
     casedansref=[]
@@ -302,7 +329,7 @@ def  amélioration(win,IA1coupsjoués,IA2coupsjoués):
             modif=0
         else:
             modif=-mod
-    for i in range(0,IA1nbcoups):
+    for i in range(0,int(IA1nbcoups)):
         ncalq=IA1coupsjoués[i,0]
         if IA1coupsjoués[i,2]==90:
             caseslibres=0
@@ -350,7 +377,7 @@ def  amélioration(win,IA1coupsjoués,IA2coupsjoués):
             modif=0
         else:
             modif=-mod
-    for i in range(0,IA2nbcoups):
+    for i in range(0,int(IA2nbcoups)):
         ncalq=IA2coupsjoués[i,0]
         if IA2coupsjoués[i,2]==90:
             caseslibres=0
@@ -479,3 +506,27 @@ def platourne(Lplato,rota):
     if rota==4:
         platour=Lplato
     return platour
+
+
+
+"""""
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+"""""
+
+def main():
+    ad = input("match ou gestion?")
+    if ad=="gestion":
+        ae = input("memoire ,infos ou entrainement?")
+        if ae=="memoire":
+            af=input("charger, stocker ou reset?")
+            if af=="charger":
+                IA1,IA2=chargerlistes()
+            if af=="stocker":
+                enregistrementIA(IA1,IA2)
+            if af=="reset":
+                IA1,IA2=resetIAS()
+
+
+main()
+    
