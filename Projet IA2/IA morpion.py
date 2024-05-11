@@ -12,11 +12,11 @@ import random
 
 #modifications possibles
 modulateur=5
-
+evealéa=5
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ##fonctions de manipulation de la mémoire des IAS
-def resetIAS(): #on remet à 0 les IAS:
+def resetIASdeux(): #on remet à 0 les IAS:
     IA1ncalq=[] #colonne 1 de la matice, liste des numéros des calques
     IA1c1=[]  #colonnes 2 à 10 de la matrice, informations sur les cases que chaque calque doit reconnaitre 
     IA1c2=[]
@@ -56,7 +56,7 @@ def resetIAS(): #on remet à 0 les IAS:
     IA2cp7=[]
     IA2cp8=[]
     IA2cp9=[]
-    for i in range(0,5000):
+    for i in range(0,2804):
         IA1ncalq.append(0)
         IA1c1.append(0)
         IA1c2.append(0)
@@ -105,7 +105,18 @@ def resetIAS(): #on remet à 0 les IAS:
         IA2[i,0]=10
     return IA1,IA2
 
-IA1,IA2=resetIAS()
+def resetIAS():
+    IA1=np.zeros((19,2804))
+    IA2=np.zeros((19,2804))
+    IA1[0,0]=1
+    IA2[0,0]=1
+    for i in range(10,19):
+        IA1[i,0]=10
+        IA2[i,0]=10
+    return IA1,IA2
+
+def capass():
+    enregistrementIA(IA1,IA2)
 
 def enregistrementIA(IA1,IA2):
     with open('stokage.txt', 'wb') as e:  #on stocke les listes definissant les IA
@@ -118,6 +129,10 @@ def chargerlistes():
         IA1 = np.load(e)
         IA2 = np.load(e)
     return IA1,IA2
+
+def setupmem():
+    IA1,IA2=resetIAS()
+    enregistrementIA(IA1,IA2)
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ##fonctions d'entraînement
@@ -134,8 +149,8 @@ def entrainement(suivi):
         if suivi==1:
             print()
             print(plato)
+        plato,coupjoué=jeuIA(plato,IAjoue,0)
         fingame=checkend(plato)
-        plato,coupjoué=jeuIA(plato,IAjoue)
         if IAjoue==1:
             IAjoue=0
             IA1coupsjoués.append(coupjoué)
@@ -145,9 +160,17 @@ def entrainement(suivi):
     if fingame==-1:
         win=-1
     else:
-        win=IAjoue
-    print("@@@@@@@@@@@")
+        if IAjoue==1:
+            win=0
+        else:
+            win=1
+    if suivi==1:
+        print(plato)
+        print("win=",win)
+        print("@@@@@@@@@@@")
     amélioration(win,IA1coupsjoués,IA2coupsjoués)
+
+
     
     
 
@@ -169,19 +192,20 @@ def checkend(plato):
     if plato[2,0]==plato[1,1]==plato[0,2]:
         if plato[1,1]>0:
             fin=1
-    Lplato=dematrix(plato)
-    fullmap=0
-    for i in range(0,9):
-        if Lplato[i]==0:
-            fullmap=1
-    if fullmap==0:
-        fin=-1
+    if fin==0:
+        Lplato=dematrix(plato)
+        fullmap=0
+        for i in range(0,9):
+            if Lplato[i]==0:
+                fullmap=1
+        if fullmap==0:
+            fin=-1
     return fin
 
 
 
 
-def jeuIA(plato,IAjoue):
+def jeuIA(plato,IAjoue,cjoueur): #adapter aux numéros joués par le joueur
     situation=dematrix(plato)
     if IAjoue==1:
         Lplato=dematrix(plato)
@@ -190,14 +214,23 @@ def jeuIA(plato,IAjoue):
         for i in range(10,19):
             calqdecision.append(IA1[i,bestcalq[0]])
         calqdecision=platourne(calqdecision,bestcalq[1])
-        choix=random.randint(0,90)
+        probtot=0
+        for a in range(0,9):
+            probtot=probtot+calqdecision[a]
+        probtot=int(probtot)
+        choix=random.randint(0,probtot)
+        if choix==0:
+            choix=1
+        if choix==90:
+            choix=89
+        #print("nb random pris (IA1)",choix)
+        #print("calque de l'IA1",IA1[:,bestcalq[0]])   #"bug: le float de certains calques les faits passer au dessus de 90, n'ayant donc  jamais de case proposée"
         casechoisie=-1
-        while choix>0:
-            choix=choix-calqdecision[casechoisie]
-            casechoisie=casechoisie+1
-        if Lplato[casechoisie]==0:
-            Lplato[casechoisie]=1
+        if cjoueur==1:
+            everandom=1
         else:
+            everandom=random.randint(0,evealéa)
+        if everandom==0:
             casetrouve=0
             while casetrouve==0:
                 casetest=int(round(random.randint(0,8)))
@@ -205,6 +238,23 @@ def jeuIA(plato,IAjoue):
                     Lplato[casetest]=1
                     casetrouve=1
             casechoisie=casetest
+        else:
+            while choix>0:
+                casechoisie=casechoisie+1
+                choix=choix-calqdecision[casechoisie]
+            if Lplato[casechoisie]==0:
+                if cjoueur==1:
+                    Lplato[casechoisie]=2
+                else:
+                    Lplato[casechoisie]=1
+            else:
+                casetrouve=0
+                while casetrouve==0:
+                    casetest=int(round(random.randint(0,8)))
+                    if Lplato[casetest]==0:
+                        Lplato[casetest]=1
+                        casetrouve=1
+                casechoisie=casetest
         plato=rematrix(Lplato)
     else:
         Lplato=dematrix(plato)
@@ -213,14 +263,23 @@ def jeuIA(plato,IAjoue):
         for i in range(10,19):
             calqdecision.append(IA2[i,bestcalq[0]])
         calqdecision=platourne(calqdecision,bestcalq[1])
-        choix=random.randint(0,90)
+        probtot=0
+        for a in range(0,9):
+            probtot=probtot+calqdecision[a]
+        probtot=int(probtot)
+        choix=random.randint(0,probtot)
+        if choix==0:
+            choix=1
+        if choix==90:
+            choix=89
+        #print("nb random pris (IA2)",choix)
+        #print("calque de l'IA2",IA2[:,bestcalq[0]])
         casechoisie=-1
-        while choix>0:
-            choix=choix-calqdecision[casechoisie]
-            casechoisie=casechoisie+1
-        if Lplato[casechoisie]==0:
-            Lplato[casechoisie]=2
+        if cjoueur==1:
+            everandom=1
         else:
+            everandom=random.randint(0,evealéa)
+        if everandom==0:
             casetrouve=0
             while casetrouve==0:
                 casetest=int(round(random.randint(0,8)))
@@ -228,6 +287,20 @@ def jeuIA(plato,IAjoue):
                     Lplato[casetest]=2
                     casetrouve=1
             casechoisie=casetest
+        else:
+            while choix>0:
+                casechoisie=casechoisie+1
+                choix=choix-calqdecision[casechoisie]
+            if Lplato[casechoisie]==0:
+                Lplato[casechoisie]=2
+            else:
+                casetrouve=0
+                while casetrouve==0:
+                    casetest=int(round(random.randint(0,8)))
+                    if Lplato[casetest]==0:
+                        Lplato[casetest]=2
+                        casetrouve=1
+                casechoisie=casetest
         plato=rematrix(Lplato)
     infos=bestcalq
     casedansref=[]
@@ -242,14 +315,11 @@ def jeuIA(plato,IAjoue):
             casejouée=i
     infos.append(casejouée)
     for i in range(0,9):
-        infos.append(situation[i]) #à la fin, infos a 13éléments: n°calque, rota appliquée, score, n°case jouée puis 9 pour la situation 
+        infos.append(situation[i]) #à la fin, infos a 13éléments: n°calque, rota appliquée, score, n°case jouée puis 9 pour la situation
+    #vérificationmanuelle()
     return plato, infos
         
         
-
-
-
-
 def meilleurcalq(plato,IAjoue):
     if IAjoue==1:
         bestcalq=[]
@@ -314,7 +384,10 @@ def meilleurcalq(plato,IAjoue):
 
 
 
-def  amélioration(win,IA1coupsjoués,IA2coupsjoués):
+def  amélioration(win,IA1coupsjoués,IA2coupsjoués): #"la matrice n'accepte que les nombres entiers, faut rework"
+    #print("win by",win)
+    #print("IA1coups",IA1coupsjoués)
+    #print("IA1coups",IA2coupsjoués)
     mod=modulateur
     IA1coupsjoués=np.array(IA1coupsjoués)
     IA1nbcoups=np.size(IA1coupsjoués)/13
@@ -337,7 +410,7 @@ def  amélioration(win,IA1coupsjoués,IA2coupsjoués):
                 if IA1coupsjoués[i,c]==0:
                     caseslibres=caseslibres+1
             for a in range(10,19):
-                if a==IA1coupsjoués[i,3]:
+                if a-10==IA1coupsjoués[i,3]:
                     IA1[a,ncalq]=IA1[a,ncalq]+modif
                 else:
                     if IA1[a-9,ncalq]==0:
@@ -357,8 +430,7 @@ def  amélioration(win,IA1coupsjoués,IA2coupsjoués):
                         IA1[d,ntotcalq]=0
             else:
                 print("ERROR def amélioration")
-            ntotcalq=ntotcalq+1
-    réparerreurs()                
+            ntotcalq=ntotcalq+1              
     #
     #
     #
@@ -385,7 +457,7 @@ def  amélioration(win,IA1coupsjoués,IA2coupsjoués):
                 if IA2coupsjoués[i,c]==0:
                     caseslibres=caseslibres+1
             for a in range(10,19):
-                if a==IA2coupsjoués[i,3]:
+                if a-10==IA2coupsjoués[i,3]:
                     IA2[a,ncalq]=IA2[a,ncalq]+modif
                 else:
                     if IA2[a-9,ncalq]==0:
@@ -406,7 +478,6 @@ def  amélioration(win,IA1coupsjoués,IA2coupsjoués):
             else:
                 print("ERROR def amélioration")
             ntotcalq=ntotcalq+1
-    réparerreurs()
     réparerreurs()
 
 
@@ -431,12 +502,24 @@ def réparerreurs():
                 for d in range(0,len(Lcaseslib)):
                     if IA1[Lcaseslib[d],e]>0:
                         IA1[Lcaseslib[d],e]=IA1[Lcaseslib[d],e]-(surmoins/diviseur)
+        fada=0
+        for i in range(10,19):
+            fada=fada+IA1[i,e]
+        if fada!=90:
+            diviseur=len(Lcaseslib)
+            fada=fada-90
+            for b in range(0,len(Lcaseslib)):
+                if IA1[Lcaseslib[b],e]<=0:
+                    diviseur=diviseur-1
+            for d in range(0,len(Lcaseslib)):
+                if IA1[Lcaseslib[d],e]>0:
+                    IA1[Lcaseslib[d],e]=IA1[Lcaseslib[d],e]-(fada/diviseur)
         e=e+1
     #
     #
     #
     e=0
-    while IA1[0,e]==e+1:
+    while IA2[0,e]==e+1:
         caseslib=0
         Lcaseslib=[]
         for c in range(10,19):
@@ -454,6 +537,18 @@ def réparerreurs():
                 for d in range(0,len(Lcaseslib)):
                     if IA2[Lcaseslib[d],e]>0:
                         IA2[Lcaseslib[d],e]=IA2[Lcaseslib[d],e]-(surmoins/diviseur)
+        fada=0
+        for i in range(10,19):
+            fada=fada+IA2[i,e]
+        if fada!=90:
+            fada=fada-90
+            diviseur=len(Lcaseslib)
+            for b in range(0,len(Lcaseslib)):
+                if IA2[Lcaseslib[b],e]<=0:
+                    diviseur=diviseur-1
+            for d in range(0,len(Lcaseslib)):
+                if IA2[Lcaseslib[d],e]>0:
+                    IA2[Lcaseslib[d],e]=IA2[Lcaseslib[d],e]-(fada/diviseur)
         e=e+1
 
                         
@@ -509,12 +604,93 @@ def platourne(Lplato,rota):
 
 
 
-"""""
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-"""""
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+##fonction d'interaction avec l'utilisateur (match,transmission d'infos)
+def matchcontrejoueur(nIA):
+    plato=np.array([[0,0,0],[0,0,0],[0,0,0]]) #platon=np.array([[1,2,3],[4,5,6],[7,8,9]])
+    fingame=0
+    if random.randint(0,1)>=0.5:     #On choisit quelle IA commence
+        joueurjoue=1
+    else:
+        joueurjoue=0
+    IA1coupsjoués=[]
+    IA2coupsjoués=[]
+    while fingame==0:
+        print(plato)
+        if joueurjoue==0:
+            joueurjoue=1
+            print("l'ia joue")
+            plato,coupjoué=jeuIA(plato,nIA,1)
+            if nIA==1:
+                IA1coupsjoués.append(coupjoué)
+            else:
+                IA2coupsjoués.append(coupjoué)
+        else:
+            print("à vous de jouer")
+            joueurjoue=0
+            Lplato=dematrix(plato)
+            casetrouvée=0
+            while casetrouvée==0:
+                casejouée=int(input("quelle case voulez-vous jouer?(1/2/.../9)"))-1
+                if Lplato[casejouée]==0:
+                    casetrouvée=1
+            Lplato[casejouée]=1
+            plato=rematrix(Lplato)
+        fingame=checkend(plato)
+    if fingame==-1:
+        win=-1
+        print("égalité")
+    else:
+        if joueurjoue==0:
+            print(plato)
+            print("vous avez gagné!")
+            win=-2
+        else:
+            print(plato)
+            print("j'ai gagné(par le biais de mon IA mais ça compte)")
+            win=nIA
+    print("@@@@@@@@@@@")
+    amélioration(win,IA1coupsjoués,IA2coupsjoués)
 
-def main():
+
+def vérificationmanuelle():
+    print("IA1")
+    e=0
+    LtotIA1=[]
+    while e+1==IA1[0,e]:
+        totIA1=0
+        for i in range(10,19):
+            totIA1=totIA1+IA1[i,e]
+        LtotIA1.append(totIA1)
+        print(IA1[:,e],"total",totIA1)
+        e=e+1
+    print("IA2")
+    e=0
+    LtotIA2=[]
+    while e+1==IA2[0,e]:
+        totIA2=0
+        for i in range(10,19):
+            totIA2=totIA2+IA2[i,e]
+        LtotIA2.append(totIA2)
+        print(IA2[:,e],"total",totIA2)
+        e=e+1
+
+
+
+"""""
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+MAIN
+"""""
+aa=input("besoin de setup (oui/non)?")
+if aa=="oui":
+    IA1,IA2=resetIAS()
+    enregistrementIA(IA1,IA2)
+IA1,IA2=chargerlistes()
+
+
+
+def main(IA1,IA2):
     ad = input("match ou gestion?")
     if ad=="gestion":
         ae = input("memoire ,infos ou entrainement?")
@@ -526,7 +702,29 @@ def main():
                 enregistrementIA(IA1,IA2)
             if af=="reset":
                 IA1,IA2=resetIAS()
-
-
-main()
-    
+        if ae=="infos":
+            ag=input("quelleIA (1/2)?")
+            if ag=="1":
+                vérificationmanuelle()
+            if ag=="2":
+                vérificationmanuelle()
+        if ae=="entrainement":
+            ah=input("combien d'entrainements?(avec infos)")
+            if ah=="avec infos":
+                ai=int(input("combien d'entrainements?"))
+                for i in range(0,ai):
+                    entrainement(1)
+                    print(i)
+                    vérificationmanuelle()
+            else:
+                ai=int(ah)
+                for i in range(0,ai):
+                    entrainement(0)
+                    print(i)
+    if ad=="match":
+        matchcontrejoueur(2)
+    quit=input("quitter?(oui/non)")
+    if quit=="non":
+        main(IA1,IA2)
+        
+main(IA1,IA2)
