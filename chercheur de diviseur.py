@@ -68,6 +68,17 @@ def décomposeur(nb):
     return decomposition
 
 
+#exos 118p219
+def exo():
+    listsol=[]
+    for i in range(3000,4001):
+        a=décomposeur(i)
+        if len(a)==3:
+            if a[0]+a[1]==a[2]:
+                listsol.append(i)
+    print(listsol)
+
+
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 er=input("besoin de setup(oui/non)")
 if er=="oui":
@@ -98,6 +109,8 @@ def main(Lnbpremiers):
             ad=int(input("essayer combien de nombres?"))
             Lnbpremiers=cherchpremiers(ad)
             enregistrement(Lnbpremiers)
+    if aa=="exo":
+        exo()
     ae=input("continuer(oui/non)?")
     if ae=="oui":
         main(Lnbpremiers)

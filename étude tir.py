@@ -1,7 +1,7 @@
 # Créé par HUMBERT, le 25/05/2023 en Python
 import numpy  as np
 from matplotlib import pyplot as plt
-from math import exp, expm1, sqrt
+from math import exp, expm1, sqrt, atan, tan, log, cos
 
 #Définition des valeurs
 vikmh =487*3.6       #vitesse initiale(km/h)
@@ -40,9 +40,76 @@ tA = 0
 dB = 0                  #informations sur le point B (fin de la courbe)
 tB = 0
 a = 0                   #si sommet déja enrigistré, a=1
+Vy=Voy
+Vx=Vox
+
+
+#//étude V2: le mode parfait
+#fonctions utilisées
+#vitesses:
+def vitx(t):
+    V=Vox/(abs(Vox)*j*t+1)
+    return V
+def vity(t):
+    if Voy>0:
+        if t<-(atan(-sqrt(j/g)*Voy)/sqrt(j*g)):
+            V=-sqrt(g/j)*tan(sqrt(g*j)*t+atan(-sqrt(j/g)*Voy))
+        else:
+            V=sqrt(g/j)*(exp(2*sqrt(j*g)*t)-1)/(-exp(2*sqrt(j*g)*t)-1)
+    else:
+        V=sqrt(g/j)*(exp(2*sqrt(j*g)*t)*(-sqrt(j/g)*Voy+1)-sqrt(j/g)*Voy-1)/(-exp(2*sqrt(j*g)*t)*(-sqrt(j/g)*Voy+1)-sqrt(j/g)*Voy-1)
+    return V
+
+#Positions:
+def pox(t):
+    P=abs(Vox)/(j*Vox)*log(abs(Vox)*j*t+1)
+    return P
+
+def poy(t):
+    if Voy>0:
+        if t<-(atan(-sqrt(j/g)*Voy)/sqrt(j*g)):
+            P=1/j*log(cos(sqrt(j*g)*t+atan(-sqrt(j/g)*Voy))/cos(atan(-sqrt(j/g)*Voy)))+hi
+        else:
+            P=log(abs(-exp(2*sqrt(j*g)*(t+atan(-sqrt(j/g)*Voy)/sqrt(j*g)))-1))/(-j)+sqrt(g/j)*(t+atan(-sqrt(j/g)*Voy)/sqrt(j*g))+log(2/cos(atan(-sqrt(j/g)*Voy)))/j+hi
+    else:
+        P=log(abs(-exp(2*sqrt(j*g)*t)*(-sqrt(j/g)*Voy+1)-sqrt(j/g)*Voy-1))/-j+sqrt(g/j)*t+log(2)/j+hi
+    return P
+
+##constantes précises
+#au sommet
+ts=-(atan(-sqrt(j/g)*Voy)/sqrt(j*g)) #temps au sommet
+xs=pox(ts) #distance
+ys=poy(ts) #hauteur
+
+#à la fin
+tf=1/sqrt(j*g)*log((exp(j*hi)+sqrt(exp(2*j*hi)-(cos(atan(-sqrt(j/g)*Voy)))**2))/(cos(atan(-sqrt(j/g)*Voy))))-(atan(-sqrt(j/g)*Voy)/sqrt(j*g))
+xf=pox(tf)
+yf=0
+
+#vitesses finales
+vfx=vitx(tf)
+vfy=vity(tf)
+vf=sqrt(vfx**2+vfy**2)
+
+#production de la trace:
+T=0
+Lpx=[]
+Lpy=[]
+compteur=0
+while T<tf:
+    Lpx.append(pox(T))
+    Lpy.append(poy(T))
+    if compteur>1000:
+        print(pox(T))
+        print(poy(T))
+        compteur=0
+    compteur=compteur+1
+    T=T+pas
+
+
 
 #corrections approximatives
-##1.01*(fv * ((Voy) ** 2) * (m ** -1) * dt) <= (P*(m**-1)*dt)
+##1.01*(fv * ((Vy) ** 2) * (m ** -1) * dt) <= (P*(m**-1)*dt)
 
 
 #vérification des données
@@ -57,21 +124,14 @@ Ect = []          #énergie cinétique au cours de temps
 Ept = []          #énergie potentielle au cours de temps
 
 #tests modélisations
-tracking_Voy = [] 
+tracking_Vy = [] 
 tracking_ay = []
 tracking_ayp=[]
-ts_estim=(j*Voy*Voy+g)/(g*j*Voy)
-model=[]
-
-#Définition des fonctions
-    #fonction de modélisation
-def mod(t):
-    u=-g/((j*t+1)**5)
-    return u
 
 
 #calcul pas à pas
 #   enregistrement des position de départ
+t=0
 posxt.append(posx)
 posyt.append(posy)
 temps.append(t)
@@ -79,73 +139,68 @@ Ect.append(Ec)
 Ept.append(Ep)
 Emt.append(Em)
 tracking_ay.append(0)
-tracking_Voy.append(0)
+tracking_Vy.append(0)
 ayp=0
 tracking_ayp.append(ayp)
-model.append(mod(t))
 #   premier calcul
-posx = posx+(Vox*dt)
-posy = posy+(Voy*dt)
+posx = posx+(Vx*dt)
+posy = posy+(Vy*dt)
 posxt.append(posx)
 posyt.append(posy)
 t = t+dt
 temps.append(t)
-tracking_Voy.append(Voy)
-Ec = 0.5*m*((Vox**2)+(Voy**2))
+tracking_Vy.append(Vy)
+Ec = 0.5*m*((Vx**2)+(Vy**2))
 Ep = posy*m*g
 Em = Ec+Ep
 Ect.append(Ec)
 Ept.append(Ep)
 Emt.append(Em)
-if Vox < vent :
-    Vox = Vox+(fv*((Vox-vent)**2)*(m**-1)*dt)
-if Vox > vent :
-    Vox = Vox-(fv*((Vox-vent)**2)*(m**-1)*dt)
-Voyold=Voy
-Voy = Voy-(fv*((Voy)**2)*(m**-1)*dt)
-Voy = Voy-(P*(m**-1)*dt)
-ay=(Voy-Voyold)/dt
+if Vx < vent :
+    Vx = Vx+(fv*((Vx-vent)**2)*(m**-1)*dt)
+if Vx > vent :
+    Vx = Vx-(fv*((Vx-vent)**2)*(m**-1)*dt)
+Vyold=Vy
+Vy = Vy-(fv*((Vy)**2)*(m**-1)*dt)
+Vy = Vy-(P*(m**-1)*dt)
+ay=(Vy-Vyold)/dt
 tracking_ay.append(ay)
 ayp=0
 tracking_ayp.append(ayp)
-model.append(mod(t))
 #calcule le trajet jusqu'a ce que le boule touche le sol
 while posy > 0 :
-    posx = posx+(Vox*dt)
-    posy = posy+(Voy*dt)
+    posx = posx+(Vx*dt)
+    posy = posy+(Vy*dt)
     posxt.append(posx)
     posyt.append(posy)
-    tracking_Voy.append(Voy)
+    tracking_Vy.append(Vy)
     t = t+dt
     temps.append(t)
-    Ec = 0.5*m*((Vox**2)+(Voy**2))
+    Ec = 0.5*m*((Vx**2)+(Vy**2))
     Ep = posy*m*g
     Em = Ec+Ep
     Ect.append(Ec)
     Ept.append(Ep)
     Emt.append(Em)
-    Voyold=Voy
+    Vyold=Vy
     ayold=ay
-    if Vox < vent :
-        Vox = Vox+(fv*((Vox-vent)**2)*(m**-1)*dt)
-    if Vox > vent :
-        Vox = Vox-(fv*((Vox-vent)**2)*(m**-1)*dt)
-    if Voy < 0:
-        Voy = Voy + ((fv * ((Voy) ** 2) * (m ** -1)-g) * dt)
-    if Voy > 0:
-        Voy = Voy - ((fv * ((Voy) ** 2) * (m ** -1)+g) * dt)
+    if Vx < vent :
+        Vx = Vx+(fv*((Vx-vent)**2)*(m**-1)*dt)
+    if Vx > vent :
+        Vx = Vx-(fv*((Vx-vent)**2)*(m**-1)*dt)
+    if Vy < 0:
+        Vy = Vy + ((fv * ((Vy) ** 2) * (m ** -1)-g) * dt)
         if a == 0:
             a = 1
             hA = posy
             dA = posx
             tA = t
-    if Voy > 0:
-        Voy = Voy - ((fv * ((Voy) ** 2) * (m ** -1)+g) * dt)
-    ay=(Voy-Voyold)/dt
+    if Vy > 0:
+        Vy = Vy - ((fv * ((Vy) ** 2) * (m ** -1)+g) * dt)
+    ay=(Vy-Vyold)/dt
     tracking_ay.append(ay)
     ayp=(ay-ayold)/dt
     tracking_ayp.append(ayp)
-    model.append(mod(t))
 dB = posx
 tB = t
 
@@ -154,6 +209,7 @@ tB = t
 print("==============")
 print("sommet de la parabole")
 print(f"temps = {tA}")
+print(f"temps(mode2) = {ts}")
 print(f"distance = {dA}")
 print(f"hauteur = {hA}")
 print()
@@ -165,9 +221,9 @@ print(f"hauteur = {posy}")
 print()
 print("==============")
 print(f"vitesses finales")
-print("verticale = ",Voy," m.s-1")
-print("horizontale = ",Vox," m.s-1")
-print("absolue = ",sqrt((Voy*Voy)+(Vox*Vox))," m.s-1")
+print("verticale = ",Vy," m.s-1")
+print("horizontale = ",Vx," m.s-1")
+print("absolue = ",sqrt((Vy*Vy)+(Vx*Vx))," m.s-1")
 
 #calcul des limites du cadre nécéssaires
 #toujours 20% de rab par rapport à la plus grande valeur pour une meilleure lisibilité
@@ -184,11 +240,11 @@ else:
 ymax2 = 1.2*EMmax
 xmax2 = 1.2*dB
 
-if tracking_ay[2]<tracking_Voy[2]:
+if tracking_ay[2]<tracking_Vy[2]:
     ymim3=1.2*tracking_ay[2]
-    ymax3=1.2*tracking_Voy[2]
+    ymax3=1.2*tracking_Vy[2]
 else:
-    ymim3=1.2*tracking_Voy[2]
+    ymim3=1.2*tracking_Vy[2]
     ymax3=1.2*tracking_ay[2]
 xmax3=1.2*t
 
@@ -221,9 +277,6 @@ if ymax4**2<1:
 
 ymax4=max(tracking_ayp)
 
-#Tracé des estimations
-tsy=[ymim3,ymax3]
-tsx=[ts_estim,ts_estim]
 
 #calcul global
 
@@ -238,7 +291,8 @@ ax1.set_ylabel('hauteur(m)')
 ax1.set_xlim(0,xmax1)
 ax1.set_ylim(0,ymax1)
 ax1.plot(posxt,posyt,'r')
-ax1.legend(['courbe du projectile'])
+ax1.plot(Lpx,Lpy,'b')
+ax1.legend(['courbe du projectile','modélisation parfaite'])
 ax1.grid()
 
 #Tracer le graphique courbe des énergies(2)
@@ -260,7 +314,7 @@ ax3.set_ylabel('vitesse(m*s-1),acc(m*s-2)')
 ax3.set_xlim(0,1.2*t)
 ax3.set_ylim(ymim3,ymax3)
 ax3.plot(temps,tracking_ay,'r')
-ax3.plot(temps,tracking_Voy,'g')
+ax3.plot(temps,tracking_Vy,'g')
 ax3.legend(['accélérations','vitesses'])
 ax3.grid()
 
@@ -280,5 +334,3 @@ plt.tight_layout()  # Pour éviter que les titres et les axes se chevauchent
 plt.show()
 
 #informations:
-print("@@@@@@@@@@@@@@")
-print(ts_estim)
