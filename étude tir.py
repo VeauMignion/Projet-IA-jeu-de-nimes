@@ -46,7 +46,7 @@ Vx=Vox
 
 #//étude V2: le mode parfait
 #fonctions utilisées
-#vitesses:
+#vitesses calcule les vitesses en fonction du temps a l'aide des constantes (trainée(j), gravité(g), vitesses initiales(Vox,Voy)):
 def vitx(t):
     V=Vox/(abs(Vox)*j*t+1)
     return V
@@ -60,7 +60,7 @@ def vity(t):
         V=sqrt(g/j)*(exp(2*sqrt(j*g)*t)*(-sqrt(j/g)*Voy+1)-sqrt(j/g)*Voy-1)/(-exp(2*sqrt(j*g)*t)*(-sqrt(j/g)*Voy+1)-sqrt(j/g)*Voy-1)
     return V
 
-#Positions:
+#Positions calcule les positions en fonction du temps à l'aide des constantes(trainée(j), gravité(g), vitesses initiales(Vox,Voy)):
 def pox(t):
     P=abs(Vox)/(j*Vox)*log(abs(Vox)*j*t+1)
     return P
@@ -99,7 +99,7 @@ compteur=0
 while T<tf:
     Lpx.append(pox(T))
     Lpy.append(poy(T))
-    if compteur>1000:
+    if compteur>3000:
         print(pox(T))
         print(poy(T))
         compteur=0
