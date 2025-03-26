@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from math import exp, expm1, sqrt, atan, tan, log, cos
 
 #Définition des valeurs
-vikmh =487*3.6       #vitesse initiale(km/h)
+vikmh =36       #vitesse initiale(km/h)
 al = 30        #angle de tir(degrés)
 hi = 20            #hauteur initiale de tir(m)
 m = 14.5            #masse de la boule tirée(kg)

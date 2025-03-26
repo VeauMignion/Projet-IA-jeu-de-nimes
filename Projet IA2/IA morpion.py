@@ -555,7 +555,7 @@ def réparerreurs():
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ##fonctions de manipulations du plato/calque
-def dematrix(plato):
+def dematrix(plato):#Transforme une matrice 3*3 en liste 9 termes
     dematrixed=[]
     a=0
     while a<=2:
@@ -566,14 +566,14 @@ def dematrix(plato):
         a=a+1
     return dematrixed
 
-def rematrix(Lplato):
+def rematrix(Lplato):#Transforme liste 9 termes en une matrice 3*3
     untiers=Lplato[0:3]
     deuxtiers=Lplato[3:6]
     troistiers=Lplato[6:9]
     plato=np.array([untiers,deuxtiers,troistiers])
     return plato
 
-def platourne(Lplato,rota):
+def platourne(Lplato,rota):#fait tourner une liste représentant une matrice 3*3 selon rota * 90 deg
     platour=[]
     if rota==0:
         platour=Lplato
@@ -653,7 +653,7 @@ def matchcontrejoueur(nIA):
     amélioration(win,IA1coupsjoués,IA2coupsjoués)
 
 
-def vérificationmanuelle():
+def vérificationmanuelle():#affiche tout les calques des deux IAs
     print("IA1")
     e=0
     LtotIA1=[]
@@ -715,7 +715,7 @@ def main(IA1,IA2):
                 for i in range(0,ai):
                     entrainement(1)
                     print(i)
-                    vérificationmanuelle()
+                    #vérificationmanuelle()
             else:
                 ai=int(ah)
                 for i in range(0,ai):

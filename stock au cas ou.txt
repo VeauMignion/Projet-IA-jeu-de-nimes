@@ -1,0 +1,23 @@
+temps=[]
+decoup=10 ##choisit le nombre d'instants que l'on va calculer (plus il y en a, plus la courbe est fidèle)
+E=1
+R=100
+L=1/100 #on prennd les valeurs numériques
+T=L/R#calcul de tau
+dt=5*T/10#temps élémentaire
+it=[]#liste des valeurs de i au cours du temps
+
+##instant initial
+t=0#temps écoulé
+i=0#valeur de i
+temps.append(t)
+it.append(i)
+di=0
+
+while t<5*T:
+    t=t+dt
+    a=i
+    i=T(E-(di/dt))#on calcule la valeur de t et i en fonction des précédentes valeurs
+    di=i-a
+    temps.append(t)
+    it.append(i)

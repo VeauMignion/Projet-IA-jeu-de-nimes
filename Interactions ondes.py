@@ -8,11 +8,11 @@ from math import exp, expm1, sqrt
 from matplotlib.widgets import Slider
 from matplotlib.gridspec import GridSpec
 ##le but de ce programme est de modéliser les zones où les interactions entre les ondes sont destructrices ou constructives, en fonction de:
-##le mode ondes sur l'eau:                                le mode lumière:
+##le mode ondes sur l'eau:                                le mode lumière(pas fait):
 ##a la distance entre les sources des ondes (cm)          (micro m)
 ##lamb la longeur d'onde (cm)                             (nm)(400-800)
-##dT le déphasage temporel (micro s)                       =0
-##c la célérité de l'onde (m.s^-1)                         =300 000 000m.s^-1
+##dT le déphasage temporel (micro s)(pas fait)             =0
+##c la célérité de l'onde (m.s^-1)(pas fait)               =300 000 000m.s^-1
 ##D la distance par rapport à la source des ondes  (cm)    (m)
 
 #fonction de la courbe
@@ -37,19 +37,27 @@ def update(val):
     Dd=cel*100*dT.val/1000
     Ddp=Dd%lamb.val
     while k+cons < a/lamb.val-Ddp:#trace toutes les fonctions possibles 
-        d=(k+cons)*lamb.val+Ddp #donne la nouvelle vlaeur de d
+        d=(k+cons)*lamb.val+Ddp #donne la nouvelle vaLeur de d
         ytraceh=[]
         ytraceb=[]
+        ytracemh=[]
+        ytracemb=[]
         i=0
         while i < len(Dx): #calcul et tracé de la courbe
             x=Dx[i]
             traceh=(a*0.5+(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5))
             traceb=(a*0.5-(sqrt((d*d*a*a-d*d*d*d+4*d*d*x*x)/(a*a-d*d))*0.5))
+            tracemh=(a*x/d)+a/2
+            tracemb=(a*x/d)+a/2
             ytraceb.append(traceb)
             ytraceh.append(traceh)
+            ytracemh.append(tracemh)
+            ytracemb.append(tracemb)
             i=i+1
         ax1.plot(Dx,ytraceh,'b')
         ax1.plot(Dx,ytraceb,'b')
+        ax1.plot(Dx,ytracemh,'r')
+        ax1.plot(Dx,ytracemb,'g')
         k=k+1
     ax1.plot(0,0, marker="o", color="red") #place les points sources d'ondes sur le graphique
     ax1.plot(0,a, marker="o", color="red")
@@ -64,7 +72,7 @@ ModeA = 0
 if ModeA == 0: #calcul pour l'eau
     cons=0.5 #cons dit si on recherche les zones d'interactions destructives(rentrer la valeur 0,5) ou constructives(0) 
     k=0      #
-    pas=0.1
+    pas=0.5
     i=0
     D=1
     x=0
@@ -111,6 +119,7 @@ if ModeA == 0: #calcul pour l'eau
     update(10)
     #Affichage
     ax1.grid()
+    plt.tight_layout()
     plt.show()
 
 #éléments de codes inutiles
